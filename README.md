@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Incident Coordination Engine (ICE)
 
-## Getting Started
+**Moteur de coordination d'incidents** — lifecycle, SLA, escalade, causalité, webhook GitHub, **post-mortem**.
 
-First, run the development server:
+**Milestone actuel : M8** — timeline causale exportable.
+
+## Démarrage
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env
+npm run db:up && npm run db:migrate && npm run db:seed
+npm run dev -- -p 3001
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Comptes démo : `lead@demo.local` / `responder@demo.local` — mot de passe `demo123`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## M8 — périmètre
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Reconstruction **Change → Déploiement → Incident → Escalade → Résolution**
+- Filtre timeline **causale** / complète sur détail incident
+- Export **JSON** et **Markdown** : `GET /api/incidents/[id]/postmortem`
+- Doc : [`docs/POSTMORTEM.md`](docs/POSTMORTEM.md)
 
-## Learn More
+## Parcours M1–M8
 
-To learn more about Next.js, take a look at the following resources:
+| M | Capacité |
+| - | -------- |
+| M1–M2 | Lifecycle + timeline |
+| M3 | Auth RBAC |
+| M4–M5 | SLA + escalade idempotente |
+| M6 | Change / Deployment manuel |
+| M7 | Webhook GitHub idempotent |
+| **M8** | **Post-mortem causal exportable** |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm test && npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Prochain milestone
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**M9** — bootstrap reproductible (`make setup`, `make dev`, `make test`).
