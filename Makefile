@@ -11,7 +11,7 @@ COMPOSE ?= docker compose
 .PHONY: help setup dev test build lint check db-up db-down db-reset clean-env wait-db migrate seed deps env check-deps
 
 help: ## Affiche les cibles disponibles
-	@echo "Incident Coordination Engine — Make (M10)"
+	@echo "Incident Coordination Engine — Make (M11)"
 	@echo ""
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 	@echo ""
@@ -90,3 +90,25 @@ logs: check-docker ## Suit les logs web + postgres
 
 compose: check-docker env ## docker compose up --build (premier plan)
 	$(COMPOSE) up --build
+
+NGINX_PORT ?= 8080
+IMAGE_PROD ?= incident-coordination-engine:prod
+
+docker-build-prod: check-docker ## Build image production multi-stage
+	docker build -t $(IMAGE_PROD) -f Dockerfile .
+
+docker-size: check-docker ## Affiche la taille de l image prod
+	@docker image inspect $(IMAGE_PROD) --format='{{.Size}}' 2>/dev/null | awk '{printf "Image %s : %.0f MB\n", "$(IMAGE_PROD)", $$1/1024/1024}' \
+	  || { echo "Image $(IMAGE_PROD) absente — lancez make docker-build-prod"; exit 1; }
+
+docker-scan: check-docker ## Scan Trivy (CRITICAL/HIGH doivent être 0)
+	@command -v trivy >/dev/null 2>&1 || { echo "✗ trivy requis"; exit 1; }
+	@docker image inspect $(IMAGE_PROD) >/dev/null 2>&1 || $(MAKE) docker-build-prod
+	trivy image --severity CRITICAL,HIGH --exit-code 1 $(IMAGE_PROD)
+
+up-prod: check-docker env ## Compose prod
+	$(COMPOSE) -f compose.prod.yaml up --build -d
+	@echo "✓ Stack prod — http://localhost:3001"
+
+down-prod: check-docker ## Arrête stack prod
+	$(COMPOSE) -f compose.prod.yaml down

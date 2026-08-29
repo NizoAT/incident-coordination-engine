@@ -1,0 +1,44 @@
+# Stack production (M11)
+# Usage : docker compose -f compose.prod.yaml up --build
+# App : http://localhost:3001
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ice
+      POSTGRES_PASSWORD: ice
+      POSTGRES_DB: incident_coordination_engine
+    ports:
+      - "5433:5432"
+    volumes:
+      - ice_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ice -d incident_coordination_engine"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: incident-coordination-engine:prod
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://ice:ice@postgres:5432/incident_coordination_engine?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:-dev-only-change-me-32chars-min!!}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-dev-github-webhook-secret-change-me}
+      SLA_TICK_INTERVAL_MS: ${SLA_TICK_INTERVAL_MS:-30000}
+      NODE_ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  ice_pg_data:

@@ -1,0 +1,37 @@
+# Dev / Compose
+Dockerfile.dev
+compose.yaml
+compose.prod.yaml
+
+# Dependencies (rebuilt in image)
+node_modules
+npm-debug.log*
+
+# Next.js cache (builder produces fresh output)
+.next
+out
+
+# Git / IDE
+.git
+.gitignore
+.cursor
+
+# Env & secrets
+.env
+.env.local
+.env.*.local
+
+# Tests & dev tooling
+coverage
+**/*.test.ts
+**/*.test.tsx
+vitest.config.ts
+
+# Docs (not needed at runtime)
+docs
+adr
+*.md
+!README.md
+
+# OS
+.DS_Store
