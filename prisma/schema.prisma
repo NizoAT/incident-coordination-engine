@@ -1,0 +1,221 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Severity {
+  low
+  medium
+  high
+  critical
+}
+
+enum IncidentStatus {
+  open
+  acknowledged
+  investigating
+  resolved
+}
+
+enum UserRole {
+  responder
+  lead
+}
+
+enum SlaStatus {
+  ok
+  warning
+  breached
+}
+
+enum EscalationDeliveryStatus {
+  pending
+  sent
+  failed
+}
+
+enum ChangeStatus {
+  planned
+  in_progress
+  completed
+  rolled_back
+}
+
+enum DeploymentStatus {
+  success
+  failed
+}
+
+enum IncidentEventType {
+  IncidentCreated
+  SeverityChanged
+  StatusChanged
+  IncidentAssigned
+  IncidentAcknowledged
+  SlaStarted
+  SlaBreached
+  EscalationTriggered
+  IncidentResolved
+  ChangeLinked
+  DeploymentDetected
+}
+
+model User {
+  id                String          @id @default(uuid())
+  email             String          @unique
+  passwordHash      String
+  role              UserRole
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  createdIncidents  Incident[]      @relation("IncidentCreatedBy")
+  assignedIncidents Incident[]      @relation("IncidentAssignee")
+  events            IncidentEvent[] @relation("IncidentEventActor")
+}
+
+model SlaPolicy {
+  id              String   @id @default(uuid())
+  severity        Severity @unique
+  durationMinutes Int
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model EscalationPolicy {
+  id                  String               @id @default(uuid())
+  severity            Severity             @unique
+  triggerAfterMinutes Int
+  notifyRole          UserRole             @default(lead)
+  active              Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  deliveries          EscalationDelivery[]
+}
+
+model EscalationDelivery {
+  id                 String                     @id @default(uuid())
+  incidentId         String
+  policyId           String
+  escalationWindowId String
+  idempotencyKey     String                     @unique
+  status             EscalationDeliveryStatus   @default(pending)
+  sentAt             DateTime?
+  createdAt          DateTime                   @default(now())
+  incident           Incident                   @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  policy             EscalationPolicy           @relation(fields: [policyId], references: [id], onDelete: Restrict)
+  notifications      NotificationLog[]
+
+  @@index([incidentId, policyId])
+  @@index([escalationWindowId])
+}
+
+model NotificationLog {
+  id                   String             @id @default(uuid())
+  escalationDeliveryId String
+  channel              String
+  payload              Json
+  createdAt            DateTime           @default(now())
+  delivery             EscalationDelivery @relation(fields: [escalationDeliveryId], references: [id], onDelete: Cascade)
+}
+
+model Incident {
+  id          String         @id @default(uuid())
+  title       String
+  description String         @default("")
+  severity    Severity
+  status      IncidentStatus @default(open)
+  version     Int            @default(1)
+  assigneeId  String?
+  createdById String?
+  slaDeadline DateTime?
+  slaStatus   SlaStatus      @default(ok)
+  slaCycleId  String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  assignee    User?          @relation("IncidentAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  createdBy   User?          @relation("IncidentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  events      IncidentEvent[]
+  escalations EscalationDelivery[]
+  changeLinks IncidentChange[]
+  deploymentLinks IncidentDeployment[]
+
+  @@index([status, severity])
+  @@index([assigneeId])
+  @@index([createdById])
+  @@index([slaDeadline, slaStatus, status])
+}
+
+model IncidentEvent {
+  id            String            @id @default(uuid())
+  incidentId    String
+  type          IncidentEventType
+  actorId       String?
+  timestamp     DateTime          @default(now())
+  metadata      Json
+  correlationId String?
+  sourceType    String?
+  sourceId      String?
+  incident      Incident          @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  actor         User?             @relation("IncidentEventActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([incidentId, timestamp])
+}
+
+model Change {
+  id          String         @id @default(uuid())
+  title       String
+  description String         @default("")
+  externalRef String?
+  status      ChangeStatus   @default(planned)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deployments Deployment[]
+  incidents   IncidentChange[]
+}
+
+model Deployment {
+  id                 String           @id @default(uuid())
+  changeId           String?
+  version            String
+  environment        String
+  status             DeploymentStatus
+  source             String           @default("manual")
+  idempotencyKey     String?          @unique
+  githubDeploymentId String?
+  deployedAt         DateTime         @default(now())
+  createdAt          DateTime         @default(now())
+  change             Change?          @relation(fields: [changeId], references: [id], onDelete: SetNull)
+  incidents          IncidentDeployment[]
+
+  @@index([changeId])
+  @@index([deployedAt])
+  @@index([source])
+}
+
+model IncidentChange {
+  incidentId String
+  changeId   String
+  linkedAt   DateTime @default(now())
+  linkedById String?
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  change     Change   @relation(fields: [changeId], references: [id], onDelete: Cascade)
+
+  @@id([incidentId, changeId])
+  @@index([changeId])
+}
+
+model IncidentDeployment {
+  incidentId   String
+  deploymentId String
+  linkedAt     DateTime @default(now())
+  linkedById   String?
+  incident     Incident   @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  deployment   Deployment @relation(fields: [deploymentId], references: [id], onDelete: Cascade)
+
+  @@id([incidentId, deploymentId])
+  @@index([deploymentId])
+}
