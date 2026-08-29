@@ -116,6 +116,7 @@ export default async function IncidentDetailPage({
           </p>
           <form action={assignIncidentFormAction} className="mt-4 space-y-4">
             <input type="hidden" name="id" value={incident.id} />
+            <input type="hidden" name="version" value={incident.version} />
             <div className="space-y-2">
               <SeverityFieldLabel htmlFor="assignee">
                 Responder assigné
@@ -278,6 +279,7 @@ export default async function IncidentDetailPage({
         {next ? (
           <form action={advanceStatusFormAction} className="mt-4">
             <input type="hidden" name="id" value={incident.id} />
+            <input type="hidden" name="version" value={incident.version} />
             <input type="hidden" name="status" value={next} />
             <button
               type="submit"
@@ -300,6 +302,7 @@ export default async function IncidentDetailPage({
         {severityEditable ? (
           <form action={updateSeverityFormAction} className="mt-4 space-y-4">
             <input type="hidden" name="id" value={incident.id} />
+            <input type="hidden" name="version" value={incident.version} />
             <div className="space-y-2">
               <SeverityFieldLabel htmlFor="severity-edit">
                 Modifier la sévérité

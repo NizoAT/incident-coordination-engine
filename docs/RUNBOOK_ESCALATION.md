@@ -50,16 +50,30 @@ WHERE "incidentId" = '<uuid>' ORDER BY timestamp;
 
 ## API PATCH (optimistic lock)
 
+Préférer **v1** : `PATCH /api/v1/incidents/{id}` (voir [`API.md`](API.md)).
+
 ```http
-PATCH /api/incidents/{id}
+PATCH /api/v1/incidents/{id}
+Authorization: Bearer <jwt>
 Content-Type: application/json
-Cookie: ice_session=...
 
 { "version": 7, "status": "acknowledged" }
 ```
 
-- **409** si `version` ne correspond plus (`VERSION_CONFLICT`)
-- **401** si non authentifié
+Réponse 409 :
+
+```json
+{
+  "error": {
+    "code": "VERSION_CONFLICT",
+    "message": "Conflit de version: rechargez l'incident et réessayez",
+    "details": { "expectedVersion": 7, "currentVersion": 8 }
+  },
+  "data": { "incident": { "...": "état courant" } }
+}
+```
+
+Legacy `PATCH /api/incidents/{id}` : même sémantique, deprecated.
 
 ## Limitations
 

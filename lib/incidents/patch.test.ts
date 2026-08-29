@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import type { SessionUser } from "@/lib/auth/types";
 import {
+  PatchForbiddenError,
   VersionConflictError,
   patchIncident,
 } from "@/lib/incidents/patch";
@@ -52,11 +53,38 @@ describe("patchIncident optimistic locking (RELEASE scenario 3)", () => {
 
     expect(successes).toHaveLength(1);
     expect(conflicts).toHaveLength(1);
+    const conflict = (conflicts[0] as PromiseRejectedResult)
+      .reason as VersionConflictError;
+    expect(conflict.details?.expectedVersion).toBe(7);
+    expect(conflict.details?.currentVersion).toBe(8);
 
     const final = await prisma.incident.findUniqueOrThrow({
       where: { id: incidentId },
     });
     expect(final.version).toBe(8);
     expect(final.status).toBe("acknowledged");
+  });
+
+  it("responder ne peut pas PATCH assigneeId (lead only)", async () => {
+    const responder = await prisma.user.findFirstOrThrow({
+      where: { email: "responder@demo.local" },
+    });
+    const responderUser: SessionUser = {
+      id: responder.id,
+      email: responder.email,
+      role: "responder",
+    };
+
+    await patchIncident(user, incidentId, {
+      version: 8,
+      assigneeId: responder.id,
+    });
+
+    await expect(
+      patchIncident(responderUser, incidentId, {
+        version: 9,
+        assigneeId: null,
+      }),
+    ).rejects.toBeInstanceOf(PatchForbiddenError);
   });
 });

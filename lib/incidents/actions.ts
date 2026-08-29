@@ -7,18 +7,14 @@ import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth/session";
 
 import {
-  assignIncident,
-  createIncident,
-  getIncidentForUser,
-  updateIncidentSeverity,
-  updateIncidentStatus,
-} from "./store";
-import {
-  assertSeverityChange,
-  assertTransition,
-  isIncidentStatus,
-  isSeverity,
-} from "./transitions";
+  PatchForbiddenError,
+  PatchNotFoundError,
+  PatchValidationError,
+  VersionConflictError,
+  patchIncident,
+} from "./patch";
+import { createIncident } from "./store";
+import { isIncidentStatus, isSeverity } from "./transitions";
 
 const createIncidentSchema = z.object({
   title: z.string().trim().min(1, "Le titre est obligatoire"),
@@ -26,12 +22,39 @@ const createIncidentSchema = z.object({
   severity: z.enum(["low", "medium", "high", "critical"]),
 });
 
+const VERSION_CONFLICT_MESSAGE =
+  "Conflit de version: un autre client a modifié l'incident. Rechargez la page.";
+
 async function requireUserOrRedirect() {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/login");
   }
   return user;
+}
+
+function parseVersion(formData: FormData): number {
+  const raw = Number(formData.get("version"));
+  if (!Number.isInteger(raw) || raw <= 0) {
+    throw new Error("Version invalide: rechargez la page.");
+  }
+  return raw;
+}
+
+function handlePatchError(error: unknown): never {
+  if (error instanceof VersionConflictError) {
+    throw new Error(VERSION_CONFLICT_MESSAGE);
+  }
+  if (error instanceof PatchForbiddenError) {
+    throw new Error("Accès refusé");
+  }
+  if (error instanceof PatchNotFoundError) {
+    throw new Error("Incident introuvable");
+  }
+  if (error instanceof PatchValidationError) {
+    throw error;
+  }
+  throw error;
 }
 
 export async function createIncidentFormAction(
@@ -61,25 +84,16 @@ export async function advanceStatusFormAction(
 
   const id = String(formData.get("id") ?? "");
   const statusRaw = String(formData.get("status") ?? "");
+  const version = parseVersion(formData);
 
   if (!id || !isIncidentStatus(statusRaw)) {
     throw new Error("Données invalides");
   }
 
-  const incident = await getIncidentForUser(user, id);
-  if (!incident) {
-    throw new Error("Incident introuvable");
-  }
-
-  assertTransition(incident.status, statusRaw);
-
   try {
-    await updateIncidentStatus(user, id, statusRaw);
+    await patchIncident(user, id, { version, status: statusRaw });
   } catch (error) {
-    if (error instanceof Error && error.message === "FORBIDDEN") {
-      throw new Error("Accès refusé");
-    }
-    throw error;
+    handlePatchError(error);
   }
 
   revalidatePath("/incidents");
@@ -93,25 +107,16 @@ export async function updateSeverityFormAction(
 
   const id = String(formData.get("id") ?? "");
   const severityRaw = String(formData.get("severity") ?? "");
+  const version = parseVersion(formData);
 
   if (!id || !isSeverity(severityRaw)) {
     throw new Error("Données invalides");
   }
 
-  const incident = await getIncidentForUser(user, id);
-  if (!incident) {
-    throw new Error("Incident introuvable");
-  }
-
-  assertSeverityChange(incident.status);
-
   try {
-    await updateIncidentSeverity(user, id, severityRaw);
+    await patchIncident(user, id, { version, severity: severityRaw });
   } catch (error) {
-    if (error instanceof Error && error.message === "FORBIDDEN") {
-      throw new Error("Accès refusé");
-    }
-    throw error;
+    handlePatchError(error);
   }
 
   revalidatePath("/incidents");
@@ -125,6 +130,7 @@ export async function assignIncidentFormAction(
 
   const id = String(formData.get("id") ?? "");
   const assigneeRaw = String(formData.get("assigneeId") ?? "");
+  const version = parseVersion(formData);
 
   if (!id) {
     throw new Error("Données invalides");
@@ -134,15 +140,12 @@ export async function assignIncidentFormAction(
     assigneeRaw === "" || assigneeRaw === "__unassigned__" ? null : assigneeRaw;
 
   try {
-    await assignIncident(user, id, assigneeId);
+    await patchIncident(user, id, { version, assigneeId });
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "FORBIDDEN") {
-        throw new Error("Seul un lead peut assigner");
-      }
-      throw error;
+    if (error instanceof PatchForbiddenError) {
+      throw new Error("Seul un lead peut assigner");
     }
-    throw error;
+    handlePatchError(error);
   }
 
   revalidatePath("/incidents");

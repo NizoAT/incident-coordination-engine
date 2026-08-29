@@ -8,7 +8,7 @@ ICE garantit le **lifecycle sous contrainte temporelle** : SLA comptés, escalad
 
 Projet portfolio: démonstration d'ingénierie backend/system design, pas un pari produit commercial vs Jira/PagerDuty.
 
-**Tag release noyau :** [`v0.1.0-core`](https://github.com/NizoAT/incident-coordination-engine/releases/tag/v0.1.0-core) (M1-M5) · **Milestone actuel :** M16 (CD GHCR)
+**Tag release noyau :** [`v0.1.0-core`](https://github.com/NizoAT/incident-coordination-engine/releases/tag/v0.1.0-core) (M1-M5) · **Milestone actuel :** M17 (API v1)
 
 ---
 
@@ -24,7 +24,7 @@ Projet portfolio: démonstration d'ingénierie backend/system design, pas un par
 **Questions entretien couvertes :**
 
 - *Que se passe-t-il si le worker d'escalade tourne deux fois ?* → `EscalationDelivery.idempotencyKey` unique, un seul envoi.
-- *Deux responders modifient l'incident en même temps ?* → `version` optimiste, 409 si stale.
+- *Deux responders modifient l'incident en même temps ?* → `version` optimiste, 409 si stale (web **et** API).
 - *Pourquoi séparer timeline et état courant ?* → reconstruction post-mortem sans event sourcing complet.
 
 ---
@@ -114,8 +114,9 @@ Ces identifiants sont créés par `prisma db seed` pour le dev local. Ils sont d
 | **M14** | **E2E Playwright (login + incident + SLA)** |
 | **M15** | **Observability (`/api/health`, logs JSON, métriques)** |
 | **M16** | **CD GHCR + deploy staging (`compose.staging.yaml`)** |
+| **M17** | **API v1 OpenAPI + JWT + lock optimiste web/API unifié** |
 
-Documentation : [`docs/`](docs/) · ADR : [`adr/`](adr/)
+Documentation : [`docs/`](docs/) · API : [`docs/API.md`](docs/API.md) · ADR : [`adr/`](adr/)
 
 ---
 
@@ -125,12 +126,14 @@ Documentation : [`docs/`](docs/) · ADR : [`adr/`](adr/)
 - Pas de SSO, rate limiting ni hardening prod: prévu M10+ (Compose web, CI).
 - Historique Git **reconstitué par milestone** (M1–M16): progression logique documentée, pas commits au fil de l'eau. Tag `v0.1.0-core` = noyau M1–M5 uniquement.
 - Scan Trivy (`make docker-scan`) : **clean** (CRITICAL/HIGH = 0, vérifié 2026-08-29) ; runtime sans CLI Prisma ni npm (ADR 014).
+- JWT API (M17) : **sans révocation** ; token valable jusqu'à expiration (`API_JWT_TTL_SECONDS`) même après logout web.
+- Pas de rate limiting API en M17.
 
 ---
 
 ## Roadmap
 
-- **M17+**: API contract OpenAPI (mobile)
+- **M18+**: Upload fichiers (optionnel)
 
 Voir [`TODO.md`](TODO.md).
 

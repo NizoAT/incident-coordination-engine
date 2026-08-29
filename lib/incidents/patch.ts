@@ -18,9 +18,17 @@ import {
 import type { Incident, IncidentStatus, Severity } from "@/lib/incidents/types";
 
 export class VersionConflictError extends Error {
-  constructor() {
+  readonly details?: { expectedVersion: number; currentVersion: number };
+  readonly currentIncident?: Incident;
+
+  constructor(options?: {
+    details?: { expectedVersion: number; currentVersion: number };
+    currentIncident?: Incident;
+  }) {
     super("VERSION_CONFLICT");
     this.name = "VersionConflictError";
+    this.details = options?.details;
+    this.currentIncident = options?.currentIncident;
   }
 }
 
@@ -38,6 +46,13 @@ export class PatchNotFoundError extends Error {
   }
 }
 
+export class PatchValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PatchValidationError";
+  }
+}
+
 const patchIncidentSchema = z
   .object({
     version: z.number().int().positive(),
@@ -45,12 +60,49 @@ const patchIncidentSchema = z
       .enum(["open", "acknowledged", "investigating", "resolved"])
       .optional(),
     severity: z.enum(["low", "medium", "high", "critical"]).optional(),
+    assigneeId: z.string().nullable().optional(),
   })
-  .refine((data) => data.status != null || data.severity != null, {
-    message: "Au moins status ou severity requis",
-  });
+  .refine(
+    (data) =>
+      data.status != null ||
+      data.severity != null ||
+      data.assigneeId !== undefined,
+    { message: "Au moins status, severity ou assigneeId requis" },
+  );
 
 export type PatchIncidentInput = z.infer<typeof patchIncidentSchema>;
+
+async function mapRecordToIncident(
+  record: NonNullable<Awaited<ReturnType<typeof prisma.incident.findUnique>>> & {
+    assignee?: { email: string } | null;
+    createdBy?: { email: string } | null;
+  },
+): Promise<Incident> {
+  const durations = await loadSlaDurationMap();
+  return toIncident(record, slaDurationFor(durations, record.severity));
+}
+
+async function throwVersionConflict(
+  id: string,
+  expectedVersion: number,
+): Promise<never> {
+  const current = await prisma.incident.findUnique({
+    where: { id },
+    include: incidentInclude,
+  });
+
+  if (!current) {
+    throw new PatchNotFoundError();
+  }
+
+  throw new VersionConflictError({
+    details: {
+      expectedVersion,
+      currentVersion: current.version,
+    },
+    currentIncident: await mapRecordToIncident(current),
+  });
+}
 
 export async function patchIncident(
   user: SessionUser,
@@ -74,11 +126,18 @@ export async function patchIncident(
     }
 
     if (current.version !== parsed.version) {
-      throw new VersionConflictError();
+      throw new VersionConflictError({
+        details: {
+          expectedVersion: parsed.version,
+          currentVersion: current.version,
+        },
+        currentIncident: await mapRecordToIncident(current),
+      });
     }
 
     let nextStatus: IncidentStatus | undefined = parsed.status;
     let nextSeverity: Severity | undefined = parsed.severity;
+    let nextAssigneeId: string | null | undefined = parsed.assigneeId;
 
     if (nextStatus != null) {
       assertTransition(current.status, nextStatus);
@@ -86,6 +145,21 @@ export async function patchIncident(
 
     if (nextSeverity != null) {
       assertSeverityChange(current.status);
+    }
+
+    if (nextAssigneeId !== undefined) {
+      if (user.role !== "lead") {
+        throw new PatchForbiddenError();
+      }
+
+      if (nextAssigneeId) {
+        const assignee = await tx.user.findUnique({
+          where: { id: nextAssigneeId },
+        });
+        if (!assignee || assignee.role !== "responder") {
+          throw new PatchValidationError("Assigné invalide");
+        }
+      }
     }
 
     if (nextStatus === current.status) {
@@ -96,9 +170,19 @@ export async function patchIncident(
       nextSeverity = undefined;
     }
 
-    if (nextStatus == null && nextSeverity == null) {
+    if (nextAssigneeId !== undefined && nextAssigneeId === current.assigneeId) {
+      nextAssigneeId = undefined;
+    }
+
+    if (
+      nextStatus == null &&
+      nextSeverity == null &&
+      nextAssigneeId === undefined
+    ) {
       return current;
     }
+
+    const previousAssigneeId = current.assigneeId;
 
     try {
       const updated = await tx.incident.update({
@@ -106,6 +190,7 @@ export async function patchIncident(
         data: {
           ...(nextStatus != null ? { status: nextStatus } : {}),
           ...(nextSeverity != null ? { severity: nextSeverity } : {}),
+          ...(nextAssigneeId !== undefined ? { assigneeId: nextAssigneeId } : {}),
           version: { increment: 1 },
         },
         include: incidentInclude,
@@ -141,18 +226,33 @@ export async function patchIncident(
         }
       }
 
+      if (nextAssigneeId !== undefined) {
+        await tx.incidentEvent.create({
+          data: {
+            incidentId: id,
+            type: "IncidentAssigned",
+            actorId: user.id,
+            metadata: {
+              assigneeId: nextAssigneeId,
+              previousAssigneeId,
+            },
+            sourceType: null,
+            sourceId: null,
+          },
+        });
+      }
+
       return updated;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === "P2025"
       ) {
-        throw new VersionConflictError();
+        await throwVersionConflict(id, parsed.version);
       }
       throw error;
     }
   });
 
-  const durations = await loadSlaDurationMap();
-  return toIncident(incident, slaDurationFor(durations, incident.severity));
+  return mapRecordToIncident(incident);
 }
