@@ -88,3 +88,117 @@ describe("patchIncident optimistic locking (RELEASE scenario 3)", () => {
     ).rejects.toBeInstanceOf(PatchForbiddenError);
   });
 });
+
+describe("patchIncident RBAC status (P2 M3 prérequis)", () => {
+  let lead: SessionUser;
+  let responder: SessionUser;
+  let otherResponder: SessionUser;
+  const ids: string[] = [];
+
+  beforeAll(async () => {
+    const leadRecord = await prisma.user.findFirstOrThrow({
+      where: { email: "lead@demo.local" },
+    });
+    const responderRecord = await prisma.user.findFirstOrThrow({
+      where: { email: "responder@demo.local" },
+    });
+
+    lead = {
+      id: leadRecord.id,
+      email: leadRecord.email,
+      role: "lead",
+    };
+    responder = {
+      id: responderRecord.id,
+      email: responderRecord.email,
+      role: "responder",
+    };
+
+    // Second responder : seed peut n'en avoir qu'un → créer jetable si besoin
+    let other = await prisma.user.findFirst({
+      where: {
+        role: "responder",
+        id: { not: responderRecord.id },
+      },
+    });
+    if (!other) {
+      other = await prisma.user.create({
+        data: {
+          email: "responder-rbac-temp@demo.local",
+          passwordHash: responderRecord.passwordHash,
+          role: "responder",
+        },
+      });
+    }
+    otherResponder = {
+      id: other.id,
+      email: other.email,
+      role: "responder",
+    };
+  });
+
+  afterAll(async () => {
+    if (ids.length > 0) {
+      await prisma.incidentEvent.deleteMany({
+        where: { incidentId: { in: ids } },
+      });
+      await prisma.incident.deleteMany({ where: { id: { in: ids } } });
+    }
+    await prisma.user.deleteMany({
+      where: { email: "responder-rbac-temp@demo.local" },
+    });
+    await prisma.$disconnect();
+  });
+
+  it("responder peut PATCH status sur incident qui lui est assigné", async () => {
+    const incident = await prisma.incident.create({
+      data: {
+        title: "RBAC ack assigné",
+        description: "P2 M3 prérequis",
+        severity: "high",
+        status: "open",
+        version: 1,
+        createdById: lead.id,
+        assigneeId: responder.id,
+      },
+    });
+    ids.push(incident.id);
+
+    const updated = await patchIncident(responder, incident.id, {
+      version: 1,
+      status: "acknowledged",
+    });
+
+    expect(updated.status).toBe("acknowledged");
+    expect(updated.version).toBe(2);
+    expect(updated.assigneeId).toBe(responder.id);
+  });
+
+  it("responder ne peut pas PATCH status sur incident ni assigné ni créé par lui", async () => {
+    const incident = await prisma.incident.create({
+      data: {
+        title: "RBAC ack interdit",
+        description: "P2 M3 prérequis",
+        severity: "medium",
+        status: "open",
+        version: 1,
+        createdById: lead.id,
+        assigneeId: otherResponder.id,
+      },
+    });
+    ids.push(incident.id);
+
+    await expect(
+      patchIncident(responder, incident.id, {
+        version: 1,
+        status: "acknowledged",
+      }),
+    ).rejects.toBeInstanceOf(PatchForbiddenError);
+
+    const unchanged = await prisma.incident.findUniqueOrThrow({
+      where: { id: incident.id },
+    });
+    expect(unchanged.status).toBe("open");
+    expect(unchanged.version).toBe(1);
+  });
+});
