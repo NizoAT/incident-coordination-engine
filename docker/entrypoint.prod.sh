@@ -1,5 +1,5 @@
 #!/bin/sh
-# Entrypoint image production — migrations au démarrage uniquement.
+# Entrypoint image production: attente Postgres uniquement (migrations hors runtime — ADR 014).
 set -e
 
 POSTGRES_HOST="${POSTGRES_HOST:-}"
@@ -12,8 +12,5 @@ if [ -n "$POSTGRES_HOST" ]; then
   done
   echo "✓ Postgres joignable"
 fi
-
-echo "→ Migrations Prisma (migrate deploy)..."
-prisma migrate deploy
 
 exec "$@"

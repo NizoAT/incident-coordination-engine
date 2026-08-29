@@ -47,6 +47,11 @@ echo "$GITHUB_TOKEN" | docker login ghcr.io -u USERNAME --password-stdin
 
 Fichier : [`compose.staging.yaml`](../compose.staging.yaml): **pas de build**, pull GHCR uniquement.
 
+**Ordre recommandé** (ADR 014) : migrations **avant** de démarrer la nouvelle image.
+
+1. CI/CD (optionnel) : activer le job migrate si la base staging est joignable depuis GitHub Actions.
+2. Sur l'hôte staging : pull + up.
+
 ```bash
 cp .env.staging.example .env.staging
 # Éditer SESSION_SECRET et GITHUB_WEBHOOK_SECRET
@@ -63,6 +68,17 @@ Vérification :
 curl -s http://localhost:8080/api/health | jq .
 docker compose -f compose.staging.yaml ps
 ```
+
+### Migrations staging via CD (optionnel)
+
+Job `migrate-staging` dans [`cd.yml`](../.github/workflows/cd.yml), après publication GHCR.
+
+| Paramètre | Type | Description |
+| --------- | ---- | ----------- |
+| `STAGING_MIGRATE_ENABLED` | variable repo | `true` pour activer le job |
+| `STAGING_DATABASE_URL` | secret repo | URL Postgres staging (réseau accessible depuis Actions) |
+
+Sans ces paramètres, appliquer les migrations manuellement depuis l'hôte (`make migrate` avec `DATABASE_URL` staging) **avant** `make up-staging`.
 
 ### Image / tag custom
 

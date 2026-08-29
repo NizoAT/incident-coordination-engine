@@ -19,6 +19,7 @@ M11-M15 : image prod buildable localement et validée en CI (`docker-prod-build`
 4. **`compose.staging.yaml`**: pull image GHCR, pas de `build:` ; secrets via `.env.staging`.
 5. Make : `pull-staging`, `up-staging`, `down-staging`.
 6. Doc [`docs/CD.md`](../docs/CD.md).
+7. Migrations staging via job CD optionnel (ADR 014), pas dans l'image runtime.
 
 ## Conséquences
 

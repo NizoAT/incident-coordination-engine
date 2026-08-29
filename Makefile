@@ -13,7 +13,7 @@ NPM ?= npm
 COMPOSE ?= docker compose
 
 .PHONY: help setup dev test test-e2e build lint typecheck ci check up down logs compose db-up db-down db-reset clean-env \
-        docker-build-prod docker-size docker-scan up-prod down-prod pull-staging up-staging down-staging
+        docker-build-prod docker-size docker-scan deploy-prod up-prod down-prod pull-staging up-staging down-staging
 
 help: ## Affiche les cibles disponibles
 	@echo "Incident Coordination Engine: Make (M16)"
@@ -121,10 +121,19 @@ docker-scan: check-docker ## Scan Trivy (CRITICAL/HIGH doivent être 0)
 	@docker image inspect $(IMAGE_PROD) >/dev/null 2>&1 || $(MAKE) docker-build-prod
 	trivy image --severity CRITICAL,HIGH --exit-code 1 $(IMAGE_PROD)
 
-up-prod: check-docker env ## Compose prod + Nginx
+deploy-prod: check-docker env ## Postgres + migrate (hôte) + stack prod (ADR 014)
+	$(COMPOSE) -f compose.prod.yaml up -d postgres
+	@$(MAKE) wait-db migrate
 	$(COMPOSE) -f compose.prod.yaml up --build -d
 	@echo ""
 	@echo "✓ Stack prod démarrée: http://localhost:$(NGINX_PORT) (Nginx)"
+	@echo "  Seed manuel si besoin : npm run db:seed (DATABASE_URL localhost:5433)"
+
+up-prod: check-docker env ## Compose prod + Nginx (migrations: make deploy-prod ou make migrate avant)
+	$(COMPOSE) -f compose.prod.yaml up --build -d
+	@echo ""
+	@echo "✓ Stack prod démarrée: http://localhost:$(NGINX_PORT) (Nginx)"
+	@echo "  Migrations : make deploy-prod (recommandé) ou make migrate avant premier up"
 	@echo "  Seed manuel si besoin : npm run db:seed (DATABASE_URL localhost:5433)"
 
 down-prod: check-docker ## Arrête stack prod

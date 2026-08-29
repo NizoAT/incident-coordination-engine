@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Production multi-stage (M11) — voir Dockerfile.dev pour le dev hot-reload
+# Production multi-stage (M11): voir Dockerfile.dev pour le dev hot-reload
 
 FROM node:20-alpine AS deps
 WORKDIR /app
@@ -26,21 +26,20 @@ ENV HOSTNAME=0.0.0.0
 
 RUN apk add --no-cache libc6-compat openssl netcat-openbsd wget \
   && addgroup --system --gid 1001 nodejs \
-  && adduser --system --uid 1001 nextjs --ingroup nodejs
+  && adduser --system --uid 1001 nextjs --ingroup nodejs \
+  && rm -rf /usr/local/lib/node_modules/npm \
+  && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+# Runtime: @prisma/client + engines uniquement (pas de CLI prisma — ADR 014)
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
 COPY docker/entrypoint.prod.sh /entrypoint.prod.sh
-RUN chmod +x /entrypoint.prod.sh \
-  && npm install -g prisma@6.19.3
+RUN chmod +x /entrypoint.prod.sh
 
 USER nextjs
 

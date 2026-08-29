@@ -124,7 +124,7 @@ Documentation : [`docs/`](docs/) · ADR : [`adr/`](adr/)
 - Scheduler SLA/escalade **in-process** (pas de queue distribuée): volontaire pour le scope portfolio.
 - Pas de SSO, rate limiting ni hardening prod: prévu M10+ (Compose web, CI).
 - Historique Git **reconstitué par milestone** (M1–M16): progression logique documentée, pas commits au fil de l'eau. Tag `v0.1.0-core` = noyau M1–M5 uniquement.
-- Scan Trivy (`make docker-scan`): exécuté localement sur l'image prod; voir [`docs/DOCKER_PROD.md`](docs/DOCKER_PROD.md) pour le dernier résultat (ne pas affirmer « clean » sur le CV tant que CRITICAL/HIGH ≠ 0).
+- Scan Trivy (`make docker-scan`) : **clean** (CRITICAL/HIGH = 0, vérifié 2026-08-29) ; runtime sans CLI Prisma ni npm (ADR 014).
 
 ---
 

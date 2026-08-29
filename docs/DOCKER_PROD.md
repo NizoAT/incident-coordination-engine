@@ -7,14 +7,31 @@ Image **optimisée** distincte de `Dockerfile.dev` (M10) : build standalone Next
 ```bash
 make docker-build-prod    # tag incident-coordination-engine:prod
 make docker-size          # taille image (cible < 400 MB)
-make docker-scan          # Trivy CRITICAL/HIGH = 0
+make docker-scan          # Trivy CRITICAL/HIGH (exit 0 attendu)
 ```
 
-Stack complète :
+### Dernier scan Trivy (local, 2026-08-29)
+
+| Cible | CRITICAL/HIGH |
+| ----- | ------------- |
+| Alpine (OS) | **0** |
+| App Next standalone + `@prisma/client` | **0** |
+| CLI `npm` (base Node) | retiré du runtime (ADR 014) |
+
+`make docker-scan` **passe** (exit 0) sur l'image prod actuelle.
+
+Stack complète (recommandé) :
 
 ```bash
-make up-prod              # compose.prod.yaml
+make deploy-prod          # Postgres + migrate hôte + compose prod
 make down-prod
+```
+
+Alternative :
+
+```bash
+make migrate              # après Postgres up (port 5433)
+make up-prod
 ```
 
 → http://localhost:8080 (via Nginx)
@@ -25,15 +42,15 @@ make down-prod
 | ----- | ---- |
 | `deps` | `npm ci` + Prisma schema |
 | `builder` | `prisma generate` + `next build` (output standalone) |
-| `runner` | Artefacts minimaux, user `nextjs` (uid 1001) |
+| `runner` | Standalone Next + `@prisma/client` (pas de CLI `prisma`) |
 
 ## Sécurité
 
-- **USER nextjs** — pas de root au runtime
-- Pas de devDependencies dans l'image finale
+- **USER nextjs**: pas de root au runtime
+- Pas de devDependencies, CLI Prisma ni npm dans l'image finale
 - `.dockerignore` exclut tests, docs, `.env`
 - `HEALTHCHECK` sur `/api/health`
-- Entrypoint : `prisma migrate deploy` au démarrage (pas de seed auto en prod)
+- Entrypoint : attente Postgres uniquement (pas de `migrate deploy` au runtime)
 
 ## Variables d'environnement
 
@@ -72,7 +89,8 @@ make docker-build-prod && make docker-size
 | User | root (dev) | nextjs |
 | Volumes | bind-mount source | aucun |
 | Compose | `compose.yaml` | `compose.prod.yaml` |
+| Migrations | hôte / entrypoint dev | CI/CD ou `make deploy-prod` |
 
 ## Prochaine étape
 
-**M16** — CD GHCR · **M17+** — voir [`docs/CD.md`](CD.md).
+**M16**: CD GHCR · **M17+**: voir [`docs/CD.md`](CD.md).

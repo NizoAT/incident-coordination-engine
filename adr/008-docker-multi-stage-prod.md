@@ -14,7 +14,7 @@ M10 livrait une image **dev** (`Dockerfile.dev`) avec bind-mount et root implici
 2. **`output: "standalone"`** dans `next.config.ts`: bundle minimal Next.js.
 3. Utilisateur **`nextjs` (uid 1001)** au runtime.
 4. **`compose.prod.yaml`** séparé de `compose.yaml` dev.
-5. Entrypoint prod : migrate deploy uniquement (pas de seed).
+5. Entrypoint prod : attente Postgres uniquement (migrations hors runtime, voir ADR 014).
 6. **Trivy** via `make docker-scan`: exit code 1 si CRITICAL/HIGH.
 7. Cible taille documentée : < 400 MB.
 
