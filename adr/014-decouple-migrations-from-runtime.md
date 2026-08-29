@@ -18,7 +18,7 @@ Conséquences :
 
 1. **Image runtime** (`Dockerfile` stage `runner`) : **`@prisma/client` + engines** (`.prisma/`) uniquement. **Pas** de dossier `node_modules/prisma`, pas de schéma `prisma/` copié au runtime. **Pas** de `npm`/`npx` (retirés de l'image base Node).
 2. **Entrypoint prod** : attente Postgres (`POSTGRES_HOST`) puis `exec` de l'app. **Aucune** migration au démarrage.
-3. **CI/CD** : job `migrate-staging` dans `cd.yml`, activé si variable repo `STAGING_MIGRATE_ENABLED=true` et secret `STAGING_DATABASE_URL`. S'exécute après publication GHCR, avant `docker compose pull/up` sur l'hôte staging.
+3. **CI/CD** : job `migrate-staging` dans `cd.yml`, activé si variable repo `STAGING_MIGRATE_ENABLED=true` et secret `STAGING_DATABASE_URL`. S'exécute **avant** `publish-ghcr` (schéma prêt avant que l'image soit pullable). Déploiement Compose staging reste manuel après le workflow CD complet.
 4. **Local prod** : cible Make `deploy-prod` = Postgres up → `make migrate` (hôte) → stack complète. Alternative : `make migrate` manuel avant `make up-prod`.
 
 ## Conséquences

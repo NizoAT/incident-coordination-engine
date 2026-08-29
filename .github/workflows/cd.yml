@@ -22,14 +22,56 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
+  migrate-staging:
+    name: Prisma migrate deploy (staging)
+    runs-on: ubuntu-latest
+    if: >
+      vars.STAGING_MIGRATE_ENABLED == 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       github.event_name == 'push' ||
+       (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success'))
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma migrate deploy
+        run: npm run db:migrate:deploy
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+      - name: Summary
+        run: |
+          {
+            echo "### Migrations staging"
+            echo ""
+            echo "Schéma Prisma synchronisé **avant** publication GHCR."
+            echo "Ensuite : \`make pull-staging && make up-staging\` sur l'hôte staging."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   publish-ghcr:
     name: Publish image → GHCR
     runs-on: ubuntu-latest
+    needs: migrate-staging
     if: >
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'workflow_run' &&
-       github.event.workflow_run.conclusion == 'success')
+      always() &&
+      (needs.migrate-staging.result == 'success' || needs.migrate-staging.result == 'skipped') &&
+      (github.event_name == 'workflow_dispatch' ||
+       github.event_name == 'push' ||
+       (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success'))
 
     steps:
       - name: Checkout
@@ -85,40 +127,4 @@ jobs:
             echo '```'
             echo ""
             echo "Pull : \`docker pull ${IMAGE_LC}:main\`"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-  migrate-staging:
-    name: Prisma migrate deploy (staging)
-    runs-on: ubuntu-latest
-    needs: publish-ghcr
-    if: >
-      needs.publish-ghcr.result == 'success' &&
-      vars.STAGING_MIGRATE_ENABLED == 'true'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Prisma migrate deploy
-        run: npm run db:migrate:deploy
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-
-      - name: Summary
-        run: |
-          {
-            echo "### Migrations staging"
-            echo ""
-            echo "Schéma Prisma synchronisé. Exécuter \`make pull-staging && make up-staging\` sur l'hôte staging."
           } >> "$GITHUB_STEP_SUMMARY"

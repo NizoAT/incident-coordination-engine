@@ -47,10 +47,11 @@ echo "$GITHUB_TOKEN" | docker login ghcr.io -u USERNAME --password-stdin
 
 Fichier : [`compose.staging.yaml`](../compose.staging.yaml): **pas de build**, pull GHCR uniquement.
 
-**Ordre recommandé** (ADR 014) : migrations **avant** de démarrer la nouvelle image.
+**Ordre CD** (ADR 014) : migrations **avant** publication GHCR, déploiement **après** les deux.
 
-1. CI/CD (optionnel) : activer le job migrate si la base staging est joignable depuis GitHub Actions.
-2. Sur l'hôte staging : pull + up.
+1. Job `migrate-staging` (optionnel, si `STAGING_MIGRATE_ENABLED=true`) : schéma staging synchronisé.
+2. Job `publish-ghcr` : image poussée sur GHCR (`needs: migrate-staging`, séquentiel, pas en parallèle).
+3. Sur l'hôte staging : pull + up **une fois le workflow CD terminé** (ne pas pull entre migrate et publish si les deux jobs tournent).
 
 ```bash
 cp .env.staging.example .env.staging
@@ -71,7 +72,7 @@ docker compose -f compose.staging.yaml ps
 
 ### Migrations staging via CD (optionnel)
 
-Job `migrate-staging` dans [`cd.yml`](../.github/workflows/cd.yml), après publication GHCR.
+Job `migrate-staging` dans [`cd.yml`](../.github/workflows/cd.yml), **avant** `publish-ghcr`.
 
 | Paramètre | Type | Description |
 | --------- | ---- | ----------- |

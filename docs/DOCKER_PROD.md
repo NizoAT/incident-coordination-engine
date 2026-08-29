@@ -20,6 +20,28 @@ make docker-scan          # Trivy CRITICAL/HIGH (exit 0 attendu)
 
 `make docker-scan` **passe** (exit 0) sur l'image prod actuelle.
 
+## Premier démarrage (clone public)
+
+> **Ne pas lancer `docker compose -f compose.prod.yaml up` seul** pour une première exécution.
+
+Depuis ADR 014, l'entrypoint prod **n'exécute plus** `prisma migrate deploy`. Un `docker compose up` démarre Postgres et l'app, mais le schéma Prisma reste absent : `/api/health` peut répondre OK alors que les routes métier échouent au premier accès DB.
+
+**Chemin reproductible (critère M9, variante prod)** :
+
+```bash
+git clone … && cd incident-coordination-engine
+cp .env.example .env    # ou make env
+make deploy-prod          # Postgres → migrate (hôte) → stack prod complète
+```
+
+Équivalent manuel (Postgres déjà up sur le port 5433) :
+
+```bash
+make migrate && make up-prod
+```
+
+Pour le dev hot-reload, le chemin « clone → run » reste `make setup` / `make up` (Compose dev, migrations dans l'entrypoint dev).
+
 Stack complète (recommandé) :
 
 ```bash
