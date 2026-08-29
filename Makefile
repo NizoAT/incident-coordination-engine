@@ -11,7 +11,7 @@ COMPOSE ?= docker compose
 .PHONY: help setup dev test build lint check db-up db-down db-reset clean-env wait-db migrate seed deps env check-deps
 
 help: ## Affiche les cibles disponibles
-	@echo "Incident Coordination Engine — Make (M11)"
+	@echo "Incident Coordination Engine — Make (M12)"
 	@echo ""
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 	@echo ""
@@ -80,13 +80,13 @@ check-make:
 up: check-docker env ## docker compose up -d --build (web + Postgres)
 	$(COMPOSE) up --build -d
 	@echo ""
-	@echo "✓ Stack Compose démarrée — http://localhost:3001"
+	@echo "✓ Stack Compose démarrée — http://localhost:$(NGINX_PORT)"
 
-down: check-docker ## Arrête web + Postgres
+down: check-docker ## Arrête nginx + web + Postgres
 	$(COMPOSE) down
 
 logs: check-docker ## Suit les logs web + postgres
-	$(COMPOSE) logs -f web postgres
+	$(COMPOSE) logs -f nginx web postgres
 
 compose: check-docker env ## docker compose up --build (premier plan)
 	$(COMPOSE) up --build
@@ -108,7 +108,7 @@ docker-scan: check-docker ## Scan Trivy (CRITICAL/HIGH doivent être 0)
 
 up-prod: check-docker env ## Compose prod
 	$(COMPOSE) -f compose.prod.yaml up --build -d
-	@echo "✓ Stack prod — http://localhost:3001"
+	@echo "✓ Stack prod — http://localhost:$(NGINX_PORT) (Nginx)"
 
 down-prod: check-docker ## Arrête stack prod
 	$(COMPOSE) -f compose.prod.yaml down
