@@ -11,7 +11,7 @@ COMPOSE ?= docker compose
 .PHONY: help setup dev test build lint check db-up db-down db-reset clean-env wait-db migrate seed deps env check-deps
 
 help: ## Affiche les cibles disponibles
-	@echo "Incident Coordination Engine — Make (M13)"
+	@echo "Incident Coordination Engine — Make (M14)"
 	@echo ""
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 	@echo ""
@@ -118,3 +118,6 @@ typecheck: check-deps ## TypeScript (tsc --noEmit)
 
 ci: check-deps env migrate seed lint typecheck test build ## Pipeline CI local (M13)
 	@echo "✓ CI locale OK"
+
+test-e2e: check-deps env migrate seed build ## Playwright E2E (M14)
+	PORT=3099 PLAYWRIGHT_USE_START=1 $(NPM) run test:e2e

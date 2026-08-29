@@ -6,8 +6,9 @@ export default function IncidentsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AppShellLayout subtitle="M8 — timeline causale post-mortem">
+    <AppShellLayout subtitle="M14 — E2E Playwright">
       {children}
     </AppShellLayout>
   );
 }
+
