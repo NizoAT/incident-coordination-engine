@@ -1,10 +1,10 @@
 # TODO — Incident Coordination Engine
 
-## M9 — Bootstrap reproductible
+## M17 — API contract (préparation mobile)
 
-- `make setup`, `make dev`, `make test`
-- README Getting started < 10 min
+- OpenAPI, endpoints stables pour incident-responder
+- Auth token, contract tests
 
-## M10 — Docker Compose (dev)
+## M18 — Upload fichiers (optionnel)
 
-- `compose.yaml` web + db documenté
+- Pièces jointes incidents

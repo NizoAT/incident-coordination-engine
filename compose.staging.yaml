@@ -1,0 +1,71 @@
+# Stack staging — image GHCR (M16), pas de build local
+# Usage :
+#   docker compose -f compose.staging.yaml pull
+#   docker compose -f compose.staging.yaml up -d
+#   ou : make pull-staging && make up-staging
+#
+# Image par défaut : ghcr.io/nizoat/incident-coordination-engine:main
+# Tag semver      : ICE_IMAGE=ghcr.io/nizoat/incident-coordination-engine:0.2.0
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ice
+      POSTGRES_PASSWORD: ice
+      POSTGRES_DB: incident_coordination_engine
+    ports:
+      - "5433:5432"
+    volumes:
+      - ice_pg_staging_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ice -d incident_coordination_engine"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    image: ${ICE_IMAGE:-ghcr.io/nizoat/incident-coordination-engine:main}
+    pull_policy: always
+    restart: unless-stopped
+    expose:
+      - "3001"
+    environment:
+      DATABASE_URL: postgresql://ice:ice@postgres:5432/incident_coordination_engine?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET requis — voir .env.staging.example}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:?GITHUB_WEBHOOK_SECRET requis}
+      SLA_TICK_INTERVAL_MS: ${SLA_TICK_INTERVAL_MS:-30000}
+      NODE_ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/api/health | grep -q '\"status\":\"ok\"' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-8080}:80"
+    volumes:
+      - ./deploy/nginx/conf.d/00-upgrade-map.conf:/etc/nginx/conf.d/00-upgrade-map.conf:ro
+      - ./deploy/nginx/conf.d/ice.conf:/etc/nginx/conf.d/ice.conf:ro
+    command: ["/bin/sh", "-c", "rm -f /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
+    depends_on:
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/nginx-health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ice_pg_staging_data:
