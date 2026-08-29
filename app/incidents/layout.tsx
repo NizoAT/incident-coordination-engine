@@ -6,7 +6,7 @@ export default function IncidentsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AppShellLayout subtitle="M14 — E2E Playwright">
+    <AppShellLayout subtitle="M15 — Observability">
       {children}
     </AppShellLayout>
   );

@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getSessionFromRequest } from "@/lib/auth/session";
+import { observeHttpRequest } from "@/lib/observability/http";
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  if (pathname.startsWith("/api/")) {
+    observeHttpRequest(request);
+    return NextResponse.next();
+  }
+
   const response = NextResponse.next();
+  observeHttpRequest(request);
   const session = await getSessionFromRequest(request, response);
 
   if (!session.user) {
@@ -19,5 +28,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/incidents/:path*", "/changes/:path*"],
+  matcher: ["/incidents/:path*", "/changes/:path*", "/api/:path*"],
 };
