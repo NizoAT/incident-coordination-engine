@@ -111,7 +111,7 @@ export default async function IncidentDetailPage({
             Assignation
           </h2>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Réservé aux leads — émet un événement{" "}
+            Réservé aux leads: émet un événement{" "}
             <code className="text-xs">IncidentAssigned</code>.
           </p>
           <form action={assignIncidentFormAction} className="mt-4 space-y-4">
@@ -142,7 +142,7 @@ export default async function IncidentDetailPage({
           Contexte causal (M6)
         </h2>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          Changements et déploiements liés — events{" "}
+          Changements et déploiements liés: events{" "}
           <code className="text-xs">ChangeLinked</code> /{" "}
           <code className="text-xs">DeploymentDetected</code> avec{" "}
           <code className="text-xs">sourceType</code>.
@@ -155,7 +155,7 @@ export default async function IncidentDetailPage({
                 key={change.id}
                 className="rounded-md border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700"
               >
-                <strong>{change.title}</strong> — {CHANGE_STATUS_LABELS[change.status]}
+                <strong>{change.title}</strong>: {CHANGE_STATUS_LABELS[change.status]}
                 {change.externalRef ? ` (${change.externalRef})` : ""}
                 <span className="block text-xs text-zinc-500">
                   Lié le {new Date(linkedAt).toLocaleString("fr-FR")}
@@ -174,7 +174,7 @@ export default async function IncidentDetailPage({
                 key={deployment.id}
                 className="rounded-md border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700"
               >
-                Deploy {deployment.version} @ {deployment.environment} —{" "}
+                Deploy {deployment.version} @ {deployment.environment} : {" "}
                 {DEPLOYMENT_STATUS_LABELS[deployment.status]}
                 <span className="block text-xs text-zinc-500">
                   {new Date(linkedAt).toLocaleString("fr-FR")}
@@ -201,7 +201,7 @@ export default async function IncidentDetailPage({
         <form action={registerDeploymentFormAction} className="mt-6 space-y-4 border-t border-zinc-200 pt-6 dark:border-zinc-700">
           <input type="hidden" name="incidentId" value={incident.id} />
           <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            Enregistrer un déploiement (manuel — ou webhook GitHub M7)
+            Enregistrer un déploiement (manuel: ou webhook GitHub M7)
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -256,7 +256,7 @@ export default async function IncidentDetailPage({
         </h2>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
           Fenêtre calculée depuis la{" "}
-          <code className="text-xs">SlaPolicy</code> active — tick scheduler
+          <code className="text-xs">SlaPolicy</code> active: tick scheduler
           in-process (M4).
         </p>
         <SlaCountdown
@@ -288,7 +288,7 @@ export default async function IncidentDetailPage({
           </form>
         ) : (
           <p className="mt-4 text-sm text-emerald-700 dark:text-emerald-400">
-            Incident résolu — aucune transition disponible.
+            Incident résolu: aucune transition disponible.
           </p>
         )}
       </section>

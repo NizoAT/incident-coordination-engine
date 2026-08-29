@@ -1,4 +1,4 @@
-# Incident Coordination Engine — bootstrap + Compose (M9–M10)
+# Incident Coordination Engine: bootstrap + Compose (M9-M10)
 # Usage: make help
 
 .DEFAULT_GOAL := help
@@ -16,7 +16,7 @@ COMPOSE ?= docker compose
         docker-build-prod docker-size docker-scan up-prod down-prod pull-staging up-staging down-staging
 
 help: ## Affiche les cibles disponibles
-	@echo "Incident Coordination Engine — Make (M16)"
+	@echo "Incident Coordination Engine: Make (M16)"
 	@echo ""
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 	@echo ""
@@ -27,7 +27,7 @@ help: ## Affiche les cibles disponibles
 
 setup: check-deps env deps db-up wait-db migrate seed ## Bootstrap host : deps + Postgres seul + migrate + seed
 	@echo ""
-	@echo "✓ Setup terminé — lancez : make dev"
+	@echo "✓ Setup terminé: lancez : make dev"
 	@echo "  Comptes démo : lead@demo.local / demo123 (local uniquement)"
 
 dev: check-deps env ## Next.js sur la machine hôte (PORT=3001)
@@ -36,7 +36,7 @@ dev: check-deps env ## Next.js sur la machine hôte (PORT=3001)
 up: check-docker env ## docker compose up -d --build (nginx + web + Postgres)
 	$(COMPOSE) up --build -d
 	@echo ""
-	@echo "✓ Stack Compose démarrée — http://localhost:$(NGINX_PORT) (Nginx)"
+	@echo "✓ Stack Compose démarrée: http://localhost:$(NGINX_PORT) (Nginx)"
 	@echo "  Logs : make logs"
 
 compose: check-docker env ## docker compose up --build (premier plan)
@@ -114,17 +114,17 @@ docker-build-prod: check-docker ## Build image production multi-stage
 
 docker-size: check-docker ## Affiche la taille de l'image prod
 	@docker image inspect $(IMAGE_PROD) --format='{{.Size}}' 2>/dev/null | awk '{printf "Image %s : %.0f MB\n", "$(IMAGE_PROD)", $$1/1024/1024}' \
-	  || { echo "Image $(IMAGE_PROD) absente — lancez make docker-build-prod"; exit 1; }
+	  || { echo "Image $(IMAGE_PROD) absente: lancez make docker-build-prod"; exit 1; }
 
 docker-scan: check-docker ## Scan Trivy (CRITICAL/HIGH doivent être 0)
-	@command -v trivy >/dev/null 2>&1 || { echo "✗ trivy requis — https://aquasecurity.github.io/trivy/"; exit 1; }
+	@command -v trivy >/dev/null 2>&1 || { echo "✗ trivy requis: https://aquasecurity.github.io/trivy/"; exit 1; }
 	@docker image inspect $(IMAGE_PROD) >/dev/null 2>&1 || $(MAKE) docker-build-prod
 	trivy image --severity CRITICAL,HIGH --exit-code 1 $(IMAGE_PROD)
 
 up-prod: check-docker env ## Compose prod + Nginx
 	$(COMPOSE) -f compose.prod.yaml up --build -d
 	@echo ""
-	@echo "✓ Stack prod démarrée — http://localhost:$(NGINX_PORT) (Nginx)"
+	@echo "✓ Stack prod démarrée: http://localhost:$(NGINX_PORT) (Nginx)"
 	@echo "  Seed manuel si besoin : npm run db:seed (DATABASE_URL localhost:5433)"
 
 down-prod: check-docker ## Arrête stack prod
@@ -135,13 +135,13 @@ pull-staging: check-docker ## Pull image GHCR (M16)
 
 up-staging: check-docker ## Compose staging (image GHCR, pas de build)
 	@if [ ! -f "$(STAGING_ENV)" ]; then \
-	  echo "✗ $(STAGING_ENV) absent — cp .env.staging.example .env.staging"; \
+	  echo "✗ $(STAGING_ENV) absent: cp .env.staging.example .env.staging"; \
 	  exit 1; \
 	fi
 	ICE_IMAGE=$(IMAGE_GHCR) $(COMPOSE) -f compose.staging.yaml --env-file $(STAGING_ENV) pull web
 	ICE_IMAGE=$(IMAGE_GHCR) $(COMPOSE) -f compose.staging.yaml --env-file $(STAGING_ENV) up -d
 	@echo ""
-	@echo "✓ Staging GHCR démarré — http://localhost:$(NGINX_PORT)"
+	@echo "✓ Staging GHCR démarré: http://localhost:$(NGINX_PORT)"
 	@echo "  Image : $(IMAGE_GHCR)"
 	@echo "  Health : curl -s http://localhost:$(NGINX_PORT)/api/health | jq ."
 

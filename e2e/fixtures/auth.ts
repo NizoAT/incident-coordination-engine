@@ -1,6 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 
-/** Comptes créés par `prisma db seed` — local / CI uniquement. */
+/** Comptes créés par `prisma db seed`: local / CI uniquement. */
 export const DEMO_LEAD = {
   email: "lead@demo.local",
   password: "demo123",

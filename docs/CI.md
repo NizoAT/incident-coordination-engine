@@ -22,7 +22,7 @@ Déclencheurs : `push` et `pull_request` sur `main`.
 
 ## Variables CI
 
-Secrets **non requis** — placeholders explicites dans le workflow :
+Secrets **non requis**: placeholders explicites dans le workflow :
 
 ```yaml
 SESSION_SECRET: ci-only-not-for-production-use-32chars!!
@@ -73,4 +73,4 @@ Doc deploy staging : [`docs/CD.md`](CD.md)
 
 ## Prochaine étape
 
-**M17** — API contract OpenAPI.
+**M17**: API contract OpenAPI.

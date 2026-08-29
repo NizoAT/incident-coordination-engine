@@ -57,7 +57,7 @@ describe("escalation RELEASE scenarios", () => {
     await prisma.$disconnect();
   });
 
-  it("scenario 1 — critical open + SLA breached → escalade envoyée", async () => {
+  it("scenario 1: critical open + SLA breached → escalade envoyée", async () => {
     const escalated = await tryEscalateIncident(incidentId);
     expect(escalated).toBe(true);
 
@@ -84,7 +84,7 @@ describe("escalation RELEASE scenarios", () => {
     expect(logs).toBeGreaterThan(0);
   });
 
-  it("scenario 2 — job dupliqué même idempotencyKey → une seule delivery sent", async () => {
+  it("scenario 2: job dupliqué même idempotencyKey → une seule delivery sent", async () => {
     const before = await prisma.escalationDelivery.count({
       where: { incidentId, status: "sent" },
     });

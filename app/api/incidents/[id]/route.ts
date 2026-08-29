@@ -33,7 +33,7 @@ export async function PATCH(
     if (error instanceof VersionConflictError) {
       return NextResponse.json(
         {
-          error: "Conflit de version — rechargez l'incident et réessayez",
+          error: "Conflit de version: rechargez l'incident et réessayez",
           code: "VERSION_CONFLICT",
         },
         { status: 409 },

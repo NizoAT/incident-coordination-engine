@@ -1,4 +1,4 @@
-# CD — GitHub Container Registry (M16)
+# CD: GitHub Container Registry (M16)
 
 Publication automatique de l'image **production** (`Dockerfile` multi-stage M11) sur **GHCR** après CI verte sur `main`, ou sur push de tag semver.
 
@@ -23,10 +23,10 @@ Badge (après premier push CD) :
 ## Prérequis GitHub
 
 1. **Actions** activées sur le repo
-2. Workflow **CD** autorisé à écrire dans **Packages** (`permissions.packages: write` — déjà dans le workflow)
+2. Workflow **CD** autorisé à écrire dans **Packages** (`permissions.packages: write`: déjà dans le workflow)
 3. Visibilité package GHCR :
-   - **Public** — `docker pull` sans auth (recommandé portfolio)
-   - **Private** — `docker login ghcr.io` avec PAT `read:packages`
+   - **Public**: `docker pull` sans auth (recommandé portfolio)
+   - **Private**: `docker login ghcr.io` avec PAT `read:packages`
 
 Paramètres : *Package settings → Change visibility* ou *Actions → General → Workflow permissions*.
 
@@ -45,7 +45,7 @@ echo "$GITHUB_TOKEN" | docker login ghcr.io -u USERNAME --password-stdin
 
 ## Deploy staging manuel (Compose)
 
-Fichier : [`compose.staging.yaml`](../compose.staging.yaml) — **pas de build**, pull GHCR uniquement.
+Fichier : [`compose.staging.yaml`](../compose.staging.yaml): **pas de build**, pull GHCR uniquement.
 
 ```bash
 cp .env.staging.example .env.staging
@@ -79,7 +79,7 @@ git tag v0.2.0
 git push origin v0.2.0
 ```
 
-Le workflow CD build + push l'image avec tags semver. Le workflow CI ne se déclenche pas sur les tags seuls — le job CD sur tag exécute son propre build (artefact identique au `Dockerfile` prod).
+Le workflow CD build + push l'image avec tags semver. Le workflow CI ne se déclenche pas sur les tags seuls: le job CD sur tag exécute son propre build (artefact identique au `Dockerfile` prod).
 
 ## CI vs CD
 
@@ -97,4 +97,4 @@ make pull-staging && make up-staging
 
 ## Prochaine étape
 
-**M17** — API contract OpenAPI (préparation mobile).
+**M17**: API contract OpenAPI (préparation mobile).

@@ -1,4 +1,4 @@
-# Post-mortem — timeline causale (M8)
+# Post-mortem: timeline causale (M8)
 
 ## Objectif
 
@@ -42,7 +42,7 @@ Exclus du filtre causal : assignation, sévérité, transitions intermédiaires.
 
 ## Horodatage déploiement
 
-Les déploiements liés utilisent `Deployment.deployedAt` (moment réel du deploy), pas l'heure de liaison — essentiel pour voir un deploy **avant** l'incident.
+Les déploiements liés utilisent `Deployment.deployedAt` (moment réel du deploy), pas l'heure de liaison: essentiel pour voir un deploy **avant** l'incident.
 
 ## Exemple curl
 

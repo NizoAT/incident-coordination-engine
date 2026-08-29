@@ -23,7 +23,7 @@ export function CausalTimeline({ entries }: { entries: CausalTimelineEntry[] }) 
   if (entries.length === 0) {
     return (
       <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-        Aucun événement causal — liez un changement ou un déploiement pour
+        Aucun événement causal: liez un changement ou un déploiement pour
         enrichir le post-mortem.
       </p>
     );

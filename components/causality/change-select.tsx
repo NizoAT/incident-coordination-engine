@@ -27,7 +27,7 @@ export function ChangeSelect({
   if (changes.length === 0) {
     return (
       <p className="text-sm text-zinc-500">
-        Aucun changement disponible —{" "}
+        Aucun changement disponible : {" "}
         <a href="/changes" className="underline">
           en créer un
         </a>

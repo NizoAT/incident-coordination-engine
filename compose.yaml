@@ -1,4 +1,4 @@
-# Incident Coordination Engine — dev stack (M10) + Nginx proxy (M12)
+# Incident Coordination Engine: dev stack (M10) + Nginx proxy (M12)
 # Usage : docker compose up --build
 # App (via proxy) : http://localhost:8080
 # Postgres (host) : localhost:5433

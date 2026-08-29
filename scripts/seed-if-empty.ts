@@ -10,7 +10,7 @@ async function main() {
       console.log("→ Seed ignoré (données déjà présentes)");
       return;
     }
-    console.log("→ Base vide — exécution du seed démo…");
+    console.log("→ Base vide: exécution du seed démo…");
     execSync("npm run db:seed", { stdio: "inherit" });
   } finally {
     await prisma.$disconnect();

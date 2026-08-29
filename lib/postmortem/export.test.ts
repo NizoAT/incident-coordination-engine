@@ -50,7 +50,7 @@ describe("postMortemToMarkdown", () => {
 
     const md = postMortemToMarkdown(report);
 
-    expect(md).toContain("# Post-mortem — Checkout down");
+    expect(md).toContain("# Post-mortem: Checkout down");
     expect(md).toContain("## Timeline causale");
     expect(md).toContain("Incident");
     expect(md).toContain("Résolution");

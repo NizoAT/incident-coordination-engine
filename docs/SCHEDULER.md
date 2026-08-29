@@ -1,4 +1,4 @@
-# Scheduler SLA + escalade (M4–M5)
+# Scheduler SLA + escalade (M4-M5)
 
 ## Mécanisme
 

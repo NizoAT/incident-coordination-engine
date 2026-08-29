@@ -1,6 +1,6 @@
 # Nginx reverse proxy (M12)
 
-L'application Next.js n'est **plus exposée directement** sur le host en mode Compose — Nginx est le point d'entrée.
+L'application Next.js n'est **plus exposée directement** sur le host en mode Compose: Nginx est le point d'entrée.
 
 ## Accès
 
@@ -40,7 +40,7 @@ curl -X POST http://localhost:8080/api/webhooks/github \
   ...
 ```
 
-`proxy_request_buffering off` sur `/api/webhooks/` — body intact pour HMAC.
+`proxy_request_buffering off` sur `/api/webhooks/`: body intact pour HMAC.
 
 ## Vérification
 
@@ -55,12 +55,12 @@ Runbook détaillé : [`docs/ops.md`](ops.md)
 
 ## Dépannage
 
-**502 / 504** — attendre le démarrage de `web` (`docker compose logs web`). Ne pas lancer `make dev` hôte en parallèle de Compose dev (bind-mount `/app` → lock Next.js).
+**502 / 504**: attendre le démarrage de `web` (`docker compose logs web`). Ne pas lancer `make dev` hôte en parallèle de Compose dev (bind-mount `/app` → lock Next.js).
 
 ## TLS
 
-M12 = HTTP local. Terminaison TLS documentée en commentaire dans `nginx.conf.example` (certificats Let's Encrypt ou reverse proxy amont — M15+ cloud).
+M12 = HTTP local. Terminaison TLS documentée en commentaire dans `nginx.conf.example` (certificats Let's Encrypt ou reverse proxy amont: M15+ cloud).
 
 ## Prochaine étape
 
-**M17** — API contract OpenAPI.
+**M17**: API contract OpenAPI.

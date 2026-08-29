@@ -23,14 +23,14 @@ function labelSeverity(value: unknown): string {
   if (typeof value === "string" && value in SEVERITY_LABELS) {
     return SEVERITY_LABELS[value as Severity];
   }
-  return String(value ?? "—");
+  return String(value ?? ": ");
 }
 
 function labelStatus(value: unknown): string {
   if (typeof value === "string" && value in STATUS_LABELS) {
     return STATUS_LABELS[value as IncidentStatus];
   }
-  return String(value ?? "—");
+  return String(value ?? ": ");
 }
 
 function labelAssignee(value: unknown): string {
@@ -42,7 +42,7 @@ function labelAssignee(value: unknown): string {
 
 function formatDeadline(value: unknown): string {
   if (typeof value !== "string") {
-    return "—";
+    return ": ";
   }
   return new Date(value).toLocaleString("fr-FR");
 }
@@ -56,7 +56,7 @@ export function formatEventDescription(
       const severity = labelSeverity(metadata.severity);
       const title =
         typeof metadata.title === "string" ? metadata.title : "Sans titre";
-      return `${EVENT_TYPE_LABELS[type]} — « ${title} » (${severity})`;
+      return `${EVENT_TYPE_LABELS[type]}: « ${title} » (${severity})`;
     }
     case "SeverityChanged":
       return `${EVENT_TYPE_LABELS[type]} : ${labelSeverity(metadata.from)} → ${labelSeverity(metadata.to)}`;
@@ -65,15 +65,15 @@ export function formatEventDescription(
     case "IncidentAssigned":
       return `${EVENT_TYPE_LABELS[type]} : ${labelAssignee(metadata.previousAssigneeId)} → ${labelAssignee(metadata.assigneeId)}`;
     case "SlaStarted":
-      return `${EVENT_TYPE_LABELS[type]} — échéance ${formatDeadline(metadata.deadline)}`;
+      return `${EVENT_TYPE_LABELS[type]}: échéance ${formatDeadline(metadata.deadline)}`;
     case "SlaBreached":
-      return `${EVENT_TYPE_LABELS[type]} — deadline ${formatDeadline(metadata.deadline)}`;
+      return `${EVENT_TYPE_LABELS[type]}: deadline ${formatDeadline(metadata.deadline)}`;
     case "EscalationTriggered":
-      return `${EVENT_TYPE_LABELS[type]} — policy ${String(metadata.policyId ?? "—")} → ${String(metadata.notifyRole ?? "lead")}`;
+      return `${EVENT_TYPE_LABELS[type]}: policy ${String(metadata.policyId ?? ": ")} → ${String(metadata.notifyRole ?? "lead")}`;
     case "ChangeLinked":
-      return `${EVENT_TYPE_LABELS[type]} — « ${String(metadata.changeTitle ?? "—")} »`;
+      return `${EVENT_TYPE_LABELS[type]}: « ${String(metadata.changeTitle ?? ": ")} »`;
     case "DeploymentDetected":
-      return `${EVENT_TYPE_LABELS[type]} — ${String(metadata.version ?? "—")} @ ${String(metadata.environment ?? "—")} (${String(metadata.status ?? "—")})`;
+      return `${EVENT_TYPE_LABELS[type]}: ${String(metadata.version ?? ": ")} @ ${String(metadata.environment ?? ": ")} (${String(metadata.status ?? ": ")})`;
     default:
       return EVENT_TYPE_LABELS[type];
   }

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { loginAsLead } from "./fixtures/auth";
 
-test.describe("parcours critique — post-mortem", () => {
+test.describe("parcours critique: post-mortem", () => {
   test("lead consulte la timeline causale et les liens d'export", async ({
     page,
   }) => {

@@ -25,7 +25,7 @@ export default async function ChangesPage() {
           Nouveau changement
         </h1>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Registre causal M6 — lier ensuite à un incident depuis le détail.
+          Registre causal M6: lier ensuite à un incident depuis le détail.
         </p>
         <form action={createChangeFormAction} className="mt-6 space-y-4">
           <div className="space-y-2">
@@ -129,7 +129,7 @@ export default async function ChangesPage() {
             {deployments.map((deployment) => (
               <li key={deployment.id} className="px-4 py-4">
                 <p className="font-medium text-zinc-900 dark:text-zinc-50">
-                  {deployment.version} @ {deployment.environment} —{" "}
+                  {deployment.version} @ {deployment.environment} : {" "}
                   {DEPLOYMENT_STATUS_LABELS[deployment.status]}
                 </p>
                 <p className="text-xs text-zinc-500">

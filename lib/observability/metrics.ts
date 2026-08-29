@@ -81,7 +81,7 @@ export function getMetricsSnapshot(): MetricsSnapshot {
   return { ...store() };
 }
 
-/** Remet les compteurs à zéro — réservé aux tests. */
+/** Remet les compteurs à zéro: réservé aux tests. */
 export function resetMetricsForTests(): void {
   globalThis.__iceMetrics = createStore();
 }

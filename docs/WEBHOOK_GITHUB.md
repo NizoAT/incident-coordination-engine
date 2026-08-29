@@ -1,4 +1,4 @@
-# Webhook GitHub — ingestion déploiements (M7)
+# Webhook GitHub: ingestion déploiements (M7)
 
 ## Endpoint
 
@@ -33,7 +33,7 @@ Dans GitHub → Settings → Webhooks → Add webhook :
 idempotencyKey = "github:{X-GitHub-Delivery}"
 ```
 
-Contrainte unique sur `Deployment.idempotencyKey` — un replay renvoie `200` avec `{ duplicate: true }`.
+Contrainte unique sur `Deployment.idempotencyKey`: un replay renvoie `200` avec `{ duplicate: true }`.
 
 ## États traités
 
@@ -71,5 +71,5 @@ Rejouer la même commande → `{ "duplicate": true }`.
 
 ## Sécurité
 
-- Pas de session cookie — auth via **signature HMAC** uniquement
+- Pas de session cookie: auth via **signature HMAC** uniquement
 - Route hors middleware auth (`/api/*`)

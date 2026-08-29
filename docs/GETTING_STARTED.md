@@ -1,6 +1,6 @@
 # Getting started (< 10 min)
 
-Guide bootstrap **M9** — de `git clone` à l'app qui tourne.
+Guide bootstrap **M9**: de `git clone` à l'app qui tourne.
 
 ## Prérequis
 
@@ -11,17 +11,17 @@ Guide bootstrap **M9** — de `git clone` à l'app qui tourne.
 | Make | any | `make -v` |
 | Git | any | `git clone …` |
 
-## Chemin rapide — hôte natif (M9)
+## Chemin rapide: hôte natif (M9)
 
 ```bash
 git clone https://github.com/NizoAT/incident-coordination-engine.git
 cd incident-coordination-engine
 
-make setup    # ~3–5 min (npm ci + Postgres + migrations + seed)
+make setup    # ~3-5 min (npm ci + Postgres + migrations + seed)
 make dev      # http://localhost:3001
 ```
 
-## Chemin rapide — Docker Compose (M10)
+## Chemin rapide: Docker Compose (M10)
 
 Sans Node local pour l'application :
 
@@ -33,7 +33,7 @@ docker compose up --build
 # ou : make up
 ```
 
-→ http://localhost:3001 — voir [`DOCKER_COMPOSE.md`](DOCKER_COMPOSE.md)
+→ http://localhost:3001: voir [`DOCKER_COMPOSE.md`](DOCKER_COMPOSE.md)
 
 Connexion démo (local uniquement, ne pas utiliser en prod) :
 
@@ -90,7 +90,7 @@ make db-reset   # ⚠ efface les données locales
 
 ### `SESSION_SECRET` trop court
 
-Éditer `.env` — minimum **32 caractères** (requis par iron-session).
+Éditer `.env`: minimum **32 caractères** (requis par iron-session).
 
 ## Alternative npm (sans Make)
 
@@ -106,4 +106,4 @@ npm run dev -- -p 3001
 
 ## Prochaine étape
 
-**M11** — Dockerfile multi-stage production.
+**M11**: Dockerfile multi-stage production.

@@ -1,4 +1,4 @@
-# Runbook — Escalade (M5)
+# Runbook: Escalade (M5)
 
 ## Quand une escalade part ?
 
@@ -63,6 +63,6 @@ Cookie: ice_session=...
 
 ## Limitations
 
-- Scheduler in-process (single-node) — voir [`SCHEDULER.md`](SCHEDULER.md)
+- Scheduler in-process (single-node): voir [`SCHEDULER.md`](SCHEDULER.md)
 - Pas de retry notification avancé (M5 minimal)
 - Email/Slack : extension future

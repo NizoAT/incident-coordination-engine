@@ -1,6 +1,6 @@
 # Tests E2E Playwright (M14)
 
-Parcours critiques couverts par Playwright — complément des tests Vitest (logique métier / Prisma).
+Parcours critiques couverts par Playwright: complément des tests Vitest (logique métier / Prisma).
 
 ## Parcours
 
@@ -39,7 +39,7 @@ Variables utiles :
 | -------- | ------ | ---- |
 | `PORT` | `3001` (CI) / `3099` (local) | Port Next.js (webServer) |
 | `PLAYWRIGHT_BASE_URL` | `http://127.0.0.1:3001` | URL de base des tests |
-| `CI` | — | `true` → `next start` au lieu de `next dev` |
+| `CI` |: | `true` → `next start` au lieu de `next dev` |
 
 ## CI GitHub Actions
 
@@ -56,4 +56,4 @@ Protection branche : ajouter le check **`Playwright E2E`** aux status checks req
 
 ## Prochaine étape
 
-**M17** — API contract OpenAPI.
+**M17**: API contract OpenAPI.

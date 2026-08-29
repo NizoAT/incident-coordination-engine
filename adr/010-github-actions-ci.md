@@ -1,12 +1,12 @@
-# ADR 010 — CI GitHub Actions (M13)
+# ADR 010: CI GitHub Actions (M13)
 
 ## Statut
 
-Accepté — M13
+Accepté: M13
 
 ## Contexte
 
-M1–M12 sans pipeline automatisé — merge manuel sans garde-fou. Objectif portfolio : CI verte sur `main` + branche protégée.
+M1-M12 sans pipeline automatisé: merge manuel sans garde-fou. Objectif portfolio : CI verte sur `main` + branche protégée.
 
 ## Décision
 
@@ -20,10 +20,10 @@ M1–M12 sans pipeline automatisé — merge manuel sans garde-fou. Objectif por
 ## Conséquences
 
 - Chaque PR vers `main` exécute la même chaîne que `make ci` (+ Docker).
-- Scan Trivy reste local/optionnel (M11) — hors job CI par défaut (install binaire).
+- Scan Trivy reste local/optionnel (M11): hors job CI par défaut (install binaire).
 - M15 ajoute `/api/health`, logs JSON et métriques (ADR 012).
 
 ## Alternatives rejetées
 
-- Tests sans Postgres — ignorerait les 5 suites d'intégration RELEASE.
-- Matrix Node 18/20/22 — YAGNI pour portfolio ; Node 20 LTS suffit.
+- Tests sans Postgres: ignorerait les 5 suites d'intégration RELEASE.
+- Matrix Node 18/20/22: YAGNI pour portfolio ; Node 20 LTS suffit.

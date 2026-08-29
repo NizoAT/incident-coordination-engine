@@ -1,4 +1,4 @@
-# Docker Compose — dev stack (M10)
+# Docker Compose: dev stack (M10)
 
 Environnement **web + Postgres** reproductible via un seul fichier `compose.yaml`.
 
@@ -12,9 +12,9 @@ make up          # detached
 make compose     # premier plan (logs)
 ```
 
-Application : **http://localhost:8080** (via Nginx — M12)
+Application : **http://localhost:8080** (via Nginx: M12)
 
-Comptes démo (seed auto si DB vide) — **local uniquement** :
+Comptes démo (seed auto si DB vide): **local uniquement** :
 
 | Email | Mot de passe |
 | ----- | ------------ |
@@ -26,7 +26,7 @@ Comptes démo (seed auto si DB vide) — **local uniquement** :
 | Service | Rôle | Port hôte |
 | ------- | ---- | --------- |
 | `nginx` | Reverse proxy (entrée publique) | 8080 |
-| `web` | Next.js dev (réseau interne) | — |
+| `web` | Next.js dev (réseau interne) |: |
 | `postgres` | Postgres 16 | 5433 |
 
 Réseau interne Compose : le service `web` utilise `DATABASE_URL=...@postgres:5432/...`  
@@ -52,7 +52,7 @@ Au démarrage du conteneur `web` :
 | Fichier | Description |
 | ------- | ----------- |
 | `compose.yaml` | Stack dev web + db |
-| `Dockerfile.dev` | Image dev (M10) — **pas** l'image prod (M11) |
+| `Dockerfile.dev` | Image dev (M10): **pas** l'image prod (M11) |
 | `docker/entrypoint.dev.sh` | Migrate + seed conditionnel |
 | `.dockerignore` | Contexte build allégé |
 
@@ -85,4 +85,4 @@ make up
 
 ## Prochaine étape
 
-**M11** — Dockerfile multi-stage production, utilisateur non-root, scan Trivy.
+**M11**: Dockerfile multi-stage production, utilisateur non-root, scan Trivy.

@@ -1,4 +1,4 @@
-# Dev image (M10) — hot reload ; image prod multi-stage = M11
+# Dev image (M10): hot reload ; image prod multi-stage = M11
 FROM node:20-alpine
 
 WORKDIR /app

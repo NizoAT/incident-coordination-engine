@@ -10,7 +10,7 @@ export default function LoginPage() {
           Connexion
         </h1>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          Incident Coordination Engine — comptes démo dans le README.
+          Incident Coordination Engine: comptes démo dans le README.
         </p>
         <form action={loginFormAction} className="mt-6 space-y-4">
           <div className="space-y-2">

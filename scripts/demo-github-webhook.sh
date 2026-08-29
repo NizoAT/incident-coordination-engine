@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Démo webhook GitHub M7 — rejouer la même commande pour voir duplicate: true
+# Démo webhook GitHub M7: rejouer la même commande pour voir duplicate: true
 set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://localhost:3001}"

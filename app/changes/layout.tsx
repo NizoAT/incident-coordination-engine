@@ -6,7 +6,7 @@ export default function ChangesLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AppShellLayout subtitle="M13 — lint test build CI">
+    <AppShellLayout subtitle="M13: lint test build CI">
       {children}
     </AppShellLayout>
   );

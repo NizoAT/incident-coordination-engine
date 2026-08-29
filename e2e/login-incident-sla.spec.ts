@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { loginAsLead } from "./fixtures/auth";
 
-test.describe("parcours critique — incident + SLA", () => {
+test.describe("parcours critique: incident + SLA", () => {
   test("lead se connecte, crée un incident et voit le SLA actif", async ({
     page,
   }) => {

@@ -172,9 +172,9 @@ const DEMO_INCIDENTS: SeedIncident[] = [
     ],
   },
   {
-    title: "Démo SLA — breach automatique",
+    title: "Démo SLA: breach automatique",
     description:
-      "Incident critical ouvert — deadline passée, le scheduler émet SlaBreached au prochain tick.",
+      "Incident critical ouvert: deadline passée, le scheduler émet SlaBreached au prochain tick.",
     severity: "critical",
     status: "open",
     createdByEmail: "lead@demo.local",
@@ -185,7 +185,7 @@ const DEMO_INCIDENTS: SeedIncident[] = [
         type: "IncidentCreated",
         actorEmail: "lead@demo.local",
         metadata: {
-          title: "Démo SLA — breach automatique",
+          title: "Démo SLA: breach automatique",
           severity: "critical",
         },
         offsetMinutes: 5,
@@ -365,7 +365,7 @@ async function seedCausality(users: Map<string, string>) {
   const change = await prisma.change.create({
     data: {
       title: "Release checkout v2.4.1",
-      description: "Refactor passerelle paiement — suspectée comme cause du incident checkout.",
+      description: "Refactor passerelle paiement: suspectée comme cause du incident checkout.",
       externalRef: "CHG-842",
       status: "completed",
     },
@@ -458,7 +458,7 @@ async function main() {
   await seedCausality(users);
 
   console.log(
-    `Seed OK — ${DEMO_USERS.length} utilisateurs, ${DEMO_INCIDENTS.length} incidents, changes/déploiements démo (mot de passe : ${DEMO_PASSWORD}).`,
+    `Seed OK: ${DEMO_USERS.length} utilisateurs, ${DEMO_INCIDENTS.length} incidents, changes/déploiements démo (mot de passe : ${DEMO_PASSWORD}).`,
   );
 }
 

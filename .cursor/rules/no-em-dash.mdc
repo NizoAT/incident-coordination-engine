@@ -1,0 +1,39 @@
+---
+description: Interdit le tiret cadratin (—) et le tiret demi-cadratin (–) dans les textes du projet
+alwaysApply: true
+---
+
+# Pas de tiret cadratin
+
+Ne jamais utiliser **—** (U+2014, em dash) ni **–** (U+2013, en dash) dans ce dépôt.
+
+## Remplacements
+
+| Interdit | Utiliser |
+| -------- | -------- |
+| `M16 — CD GHCR` | `M16: CD GHCR` |
+| `M9–M10` | `M9-M10` |
+| `texte — suite` | `texte: suite` ou `texte, suite` |
+| plages de versions | tiret ASCII `-` |
+
+## Exemples
+
+```tsx
+// ❌
+<AppShellLayout subtitle="M16 — Observability">
+
+// ✅
+<AppShellLayout subtitle="M16: Observability">
+```
+
+```markdown
+<!-- ❌ -->
+Bootstrap Makefile — ensure-env
+
+<!-- ✅ -->
+Bootstrap Makefile: ensure-env
+```
+
+## Vérification
+
+Avant de committer, aucune occurrence de `—` ou `–` dans les fichiers modifiés (hors dépendances / lockfiles).

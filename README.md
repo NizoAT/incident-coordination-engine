@@ -2,13 +2,13 @@
 
 [![CI](https://github.com/NizoAT/incident-coordination-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/NizoAT/incident-coordination-engine/actions/workflows/ci.yml)
 
-**Moteur de coordination d'incidents** — pas un incident tracker CRUD.
+**Moteur de coordination d'incidents**: pas un incident tracker CRUD.
 
 ICE garantit le **lifecycle sous contrainte temporelle** : SLA comptés, escalades **idempotentes** (un seul envoi même si le worker tourne deux fois), mises à jour concurrentes gérées par **versioning optimiste** (409), timeline **immuable** pour post-mortem, et lien causal Change → Déploiement → Incident.
 
-Projet portfolio — démonstration d'ingénierie backend/system design, pas un pari produit commercial vs Jira/PagerDuty.
+Projet portfolio: démonstration d'ingénierie backend/system design, pas un pari produit commercial vs Jira/PagerDuty.
 
-**Tag release noyau :** [`v0.1.0-core`](https://github.com/NizoAT/incident-coordination-engine/releases/tag/v0.1.0-core) (M1–M5) · **Milestone actuel :** M16 (CD GHCR)
+**Tag release noyau :** [`v0.1.0-core`](https://github.com/NizoAT/incident-coordination-engine/releases/tag/v0.1.0-core) (M1-M5) · **Milestone actuel :** M16 (CD GHCR)
 
 ---
 
@@ -19,7 +19,7 @@ Projet portfolio — démonstration d'ingénierie backend/system design, pas un 
 | SLA + escalade avec garanties d'idempotence | CRUD + notifications |
 | Event-log séparé de l'état courant | Historique optionnel |
 | Concurrence : PATCH avec conflit 409 | Dernier write gagne |
-| Extension causale M6–M8 | Intégrations absentes |
+| Extension causale M6-M8 | Intégrations absentes |
 
 **Questions entretien couvertes :**
 
@@ -37,7 +37,7 @@ TypeScript · Next.js 16 · Prisma 6 · Postgres · iron-session · Zod · Vites
 
 ## Démarrage local (< 10 min)
 
-### Option A — Docker Compose (web + Postgres, M10)
+### Option A: Docker Compose (web + Postgres, M10)
 
 ```bash
 docker compose up --build
@@ -48,7 +48,7 @@ docker compose up --build
 
 Doc : [`docs/DOCKER_COMPOSE.md`](docs/DOCKER_COMPOSE.md) · [`docs/NGINX.md`](docs/NGINX.md)
 
-### Option A2 — Compose production (M11)
+### Option A2: Compose production (M11)
 
 ```bash
 make docker-build-prod   # image multi-stage non-root
@@ -57,9 +57,9 @@ make up-prod             # ou : docker compose -f compose.prod.yaml up --build
 
 Doc : [`docs/DOCKER_PROD.md`](docs/DOCKER_PROD.md)
 
-### Option A3 — Staging GHCR (M16)
+### Option A3: Staging GHCR (M16)
 
-Image publiée par le workflow CD — pas de build local :
+Image publiée par le workflow CD: pas de build local :
 
 ```bash
 cp .env.staging.example .env.staging   # éditer les secrets
@@ -68,7 +68,7 @@ make pull-staging && make up-staging
 
 Doc : [`docs/CD.md`](docs/CD.md)
 
-### Option B — Hôte natif (M9)
+### Option B: Hôte natif (M9)
 
 ```bash
 make setup && make dev
@@ -78,12 +78,12 @@ Guide : [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)
 
 ```bash
 make test     # ou make ci (lint + typecheck + test + build)
-make test-e2e # Playwright — login + incident + SLA (M14)
+make test-e2e # Playwright: login + incident + SLA (M14)
 ```
 
 Doc CI : [`docs/CI.md`](docs/CI.md) · Doc E2E : [`docs/E2E.md`](docs/E2E.md) · Runbook : [`docs/ops.md`](docs/ops.md) · CD : [`docs/CD.md`](docs/CD.md)
 
-**Comptes de démonstration locaux uniquement** — ne jamais utiliser en production :
+**Comptes de démonstration locaux uniquement**: ne jamais utiliser en production :
 
 | Rôle | Email | Mot de passe |
 | ---- | ----- | ------------ |
@@ -96,19 +96,19 @@ Ces identifiants sont créés par `prisma db seed` pour le dev local. Ils sont d
 
 ---
 
-## Capacités (M1–M8)
+## Capacités (M1-M8)
 
 | M | Capacité |
 | - | -------- |
-| M1–M2 | Lifecycle + timeline append-only (`IncidentEvent`) |
+| M1-M2 | Lifecycle + timeline append-only (`IncidentEvent`) |
 | M3 | Auth RBAC (lead / responder), `actorId` sur les events |
-| M4–M5 | SLA policies, scheduler in-process, escalade idempotente, PATCH API |
+| M4-M5 | SLA policies, scheduler in-process, escalade idempotente, PATCH API |
 | M6 | Registre causal Change / Deployment |
 | M7 | Webhook GitHub (`deployment_status`) avec idempotence |
 | M8 | Timeline post-mortem causale + export JSON/Markdown |
 | **M9** | **Bootstrap `make setup` / `dev` / `test`** |
 | **M10** | **Compose dev web + Postgres (`docker compose up`)** |
-| **M11** | **Dockerfile multi-stage prod + scan Trivy** |
+| **M11** | **Dockerfile multi-stage prod + scan Trivy (`make docker-scan`)** |
 | **M12** | **Nginx reverse proxy + headers sécu** |
 | **M13** | **CI GitHub Actions (lint → test → build)** |
 | **M14** | **E2E Playwright (login + incident + SLA)** |
@@ -121,15 +121,16 @@ Documentation : [`docs/`](docs/) · ADR : [`adr/`](adr/)
 
 ## Limitations connues
 
-- Scheduler SLA/escalade **in-process** (pas de queue distribuée) — volontaire pour le scope portfolio.
-- Pas de SSO, rate limiting ni hardening prod — prévu M10+ (Compose web, CI).
-- Historique Git **reconstitué par milestone** (progression logique documentée, pas commits temps réel).
+- Scheduler SLA/escalade **in-process** (pas de queue distribuée): volontaire pour le scope portfolio.
+- Pas de SSO, rate limiting ni hardening prod: prévu M10+ (Compose web, CI).
+- Historique Git **reconstitué par milestone** (M1–M16): progression logique documentée, pas commits au fil de l'eau. Tag `v0.1.0-core` = noyau M1–M5 uniquement.
+- Scan Trivy (`make docker-scan`): exécuté localement sur l'image prod; voir [`docs/DOCKER_PROD.md`](docs/DOCKER_PROD.md) pour le dernier résultat (ne pas affirmer « clean » sur le CV tant que CRITICAL/HIGH ≠ 0).
 
 ---
 
 ## Roadmap
 
-- **M17+** — API contract OpenAPI (mobile)
+- **M17+**: API contract OpenAPI (mobile)
 
 Voir [`TODO.md`](TODO.md).
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Entrypoint conteneur web dev — migrations + seed si DB vide.
+# Entrypoint conteneur web dev: migrations + seed si DB vide.
 set -e
 
 POSTGRES_HOST="${POSTGRES_HOST:-postgres}"

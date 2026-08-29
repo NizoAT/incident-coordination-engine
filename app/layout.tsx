@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Incident Coordination Engine",
-  description: "Moteur de coordination d'incidents — M3",
+  description: "Moteur de coordination d'incidents: M3",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

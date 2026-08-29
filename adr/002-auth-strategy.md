@@ -1,4 +1,4 @@
-# ADR 002 — Stratégie d'authentification (M3)
+# ADR 002: Stratégie d'authentification (M3)
 
 **Date :** 2026-08-29  
 **Statut :** Accepté
@@ -32,7 +32,7 @@ M3 exige login/logout, sessions, RBAC minimal (responder | lead), et `actorId` s
 
 - **Positif :** KISS, compatible App Router, logout = `session.destroy()`
 - **Positif :** Pas de refresh token / rotation JWT à gérer
-- **Négatif :** Session non partagée entre instances sans sticky sessions ou store externe (acceptable M3–M5)
+- **Négatif :** Session non partagée entre instances sans sticky sessions ou store externe (acceptable M3-M5)
 - **Négatif :** `SESSION_SECRET` obligatoire au démarrage
 
 ## RBAC M3
@@ -46,4 +46,4 @@ Todo événement déclenché par un utilisateur authentifié → `actorId` rense
 
 ## Références
 
-- [`spec/.../M1-M5_SCOPE.md`](../../spec/p1-incident-coordination-engine/M1-M5_SCOPE.md) (M3) — repo parcours
+- [`spec/.../M1-M5_SCOPE.md`](../../spec/p1-incident-coordination-engine/M1-M5_SCOPE.md) (M3): repo parcours

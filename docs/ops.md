@@ -1,4 +1,4 @@
-# Runbook ops — Incident Coordination Engine (M15)
+# Runbook ops: Incident Coordination Engine (M15)
 
 Observabilité minimale pour diagnostiquer la santé de l'app, le scheduler SLA et la charge HTTP.
 
@@ -102,13 +102,13 @@ docker compose logs web 2>&1 | jq -c 'select(.msg == "scheduler.tick")'
 
 ## Procédures
 
-### `status: degraded` — base de données
+### `status: degraded`: base de données
 
 1. Vérifier Postgres : `docker compose ps postgres` ou `make wait-db`
 2. Tester `DATABASE_URL` : `npm run db:migrate:deploy`
 3. Relancer la stack : `make up` ou `make dev`
 
-### `status: degraded` — scheduler
+### `status: degraded`: scheduler
 
 Le scheduler est **in-process** (un seul worker par instance Node). Il démarre via [`instrumentation.ts`](../instrumentation.ts).
 
@@ -119,7 +119,7 @@ Le scheduler est **in-process** (un seul worker par instance Node). Il démarre 
 
 ### SLA overdue élevé
 
-1. Lister les incidents ouverts en breach dans l'UI ou via seed « Démo SLA — breach automatique »
+1. Lister les incidents ouverts en breach dans l'UI ou via seed « Démo SLA: breach automatique »
 2. Vérifier que le scheduler tourne (`schedulerRunning: true`)
 3. Attendre un tick ou réduire `SLA_TICK_INTERVAL_MS` en local
 
@@ -130,10 +130,10 @@ Le scheduler est **in-process** (un seul worker par instance Node). Il démarre 
 
 ## Limitations (volontaires M15)
 
-- Compteurs **in-memory** — remis à zéro au restart ; pas de Prometheus sidecar
+- Compteurs **in-memory**: remis à zéro au restart ; pas de Prometheus sidecar
 - Pas de tracing distribué ni corrélation request-id
-- `/api/metrics` non authentifié — exposer uniquement sur réseau interne en prod
+- `/api/metrics` non authentifié: exposer uniquement sur réseau interne en prod
 
 ## Prochaine étape
 
-**M17** — API contract OpenAPI (préparation mobile).
+**M17**: API contract OpenAPI (préparation mobile).

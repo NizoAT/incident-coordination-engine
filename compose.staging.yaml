@@ -1,4 +1,4 @@
-# Stack staging — image GHCR (M16), pas de build local
+# Stack staging: image GHCR (M16), pas de build local
 # Usage :
 #   docker compose -f compose.staging.yaml pull
 #   docker compose -f compose.staging.yaml up -d
@@ -33,7 +33,7 @@ services:
       - "3001"
     environment:
       DATABASE_URL: postgresql://ice:ice@postgres:5432/incident_coordination_engine?schema=public
-      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET requis — voir .env.staging.example}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET requis: voir .env.staging.example}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:?GITHUB_WEBHOOK_SECRET requis}
       SLA_TICK_INTERVAL_MS: ${SLA_TICK_INTERVAL_MS:-30000}
       NODE_ENV: production

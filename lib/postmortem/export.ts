@@ -15,7 +15,7 @@ export function postMortemToMarkdown(report: PostMortemReport): string {
   const { incident, linkedChanges, linkedDeployments, causalTimeline } = report;
   const lines: string[] = [];
 
-  lines.push(`# Post-mortem — ${incident.title}`);
+  lines.push(`# Post-mortem: ${incident.title}`);
   lines.push("");
   lines.push(`- **ID incident :** \`${incident.id}\``);
   lines.push(`- **Sévérité :** ${SEVERITY_LABELS[incident.severity]}`);
@@ -40,11 +40,11 @@ export function postMortemToMarkdown(report: PostMortemReport): string {
   lines.push("| ----- | ----- | --------- |");
 
   if (causalTimeline.length === 0) {
-    lines.push("| — | — | Aucun événement causal |");
+    lines.push("|: |: | Aucun événement causal |");
   } else {
     for (const entry of causalTimeline) {
       const desc = entry.description
-        ? `${entry.title} — ${entry.description}`
+        ? `${entry.title}: ${entry.description}`
         : entry.title;
       lines.push(
         `| ${formatTimestamp(entry.timestamp)} | ${CAUSAL_PHASE_LABELS[entry.phase]} | ${desc.replace(/\|/g, "\\|")} |`,
@@ -61,7 +61,7 @@ export function postMortemToMarkdown(report: PostMortemReport): string {
   } else {
     for (const { change, linkedAt } of linkedChanges) {
       lines.push(
-        `- **${change.title}** — ${CHANGE_STATUS_LABELS[change.status]} (lié le ${formatTimestamp(linkedAt)})`,
+        `- **${change.title}**: ${CHANGE_STATUS_LABELS[change.status]} (lié le ${formatTimestamp(linkedAt)})`,
       );
     }
   }
@@ -75,14 +75,14 @@ export function postMortemToMarkdown(report: PostMortemReport): string {
   } else {
     for (const { deployment, linkedAt } of linkedDeployments) {
       lines.push(
-        `- **${deployment.version}** @ ${deployment.environment} — ${DEPLOYMENT_STATUS_LABELS[deployment.status]} (déployé le ${formatTimestamp(deployment.deployedAt)}, lié le ${formatTimestamp(linkedAt)})`,
+        `- **${deployment.version}** @ ${deployment.environment}: ${DEPLOYMENT_STATUS_LABELS[deployment.status]} (déployé le ${formatTimestamp(deployment.deployedAt)}, lié le ${formatTimestamp(linkedAt)})`,
       );
     }
   }
 
   lines.push("");
   lines.push("---");
-  lines.push("_Incident Coordination Engine — export post-mortem M8_");
+  lines.push("_Incident Coordination Engine: export post-mortem M8_");
 
   return lines.join("\n");
 }

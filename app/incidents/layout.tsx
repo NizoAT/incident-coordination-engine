@@ -6,7 +6,7 @@ export default function IncidentsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AppShellLayout subtitle="M16 — CD GHCR">
+    <AppShellLayout subtitle="M16: CD GHCR">
       {children}
     </AppShellLayout>
   );

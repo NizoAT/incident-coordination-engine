@@ -1,12 +1,12 @@
-# ADR 006 — Bootstrap reproductible via Makefile (M9)
+# ADR 006: Bootstrap reproductible via Makefile (M9)
 
 ## Statut
 
-Accepté — M9
+Accepté: M9
 
 ## Contexte
 
-Après M8, démarrer ICE exigeait 5+ commandes npm/docker manuelles et `prisma migrate dev` (interactif). `git clone` seul ne suffisait pas — objectif portfolio : onboarding < 10 min.
+Après M8, démarrer ICE exigeait 5+ commandes npm/docker manuelles et `prisma migrate dev` (interactif). `git clone` seul ne suffisait pas: objectif portfolio : onboarding < 10 min.
 
 ## Décision
 
@@ -20,9 +20,9 @@ Après M8, démarrer ICE exigeait 5+ commandes npm/docker manuelles et `prisma m
 
 - Onboarding reproductible sans connaissance interne du repo.
 - M10 pourra étendre Compose (service web) sans changer l'interface Make.
-- Make requis — acceptable pour cible devops/portfolio ; fallback npm documenté.
+- Make requis: acceptable pour cible devops/portfolio ; fallback npm documenté.
 
 ## Alternatives rejetées
 
-- Script npm unique (`npm run setup`) — moins visible pour profil DevOps que Make.
-- `migrate dev` dans setup — bloque en non-interactif.
+- Script npm unique (`npm run setup`): moins visible pour profil DevOps que Make.
+- `migrate dev` dans setup: bloque en non-interactif.
