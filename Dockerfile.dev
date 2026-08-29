@@ -1,0 +1,24 @@
+# Dev image (M10) — hot reload ; image prod multi-stage = M11
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache libc6-compat openssl netcat-openbsd wget
+
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+RUN npm ci
+
+COPY docker/entrypoint.dev.sh /entrypoint.dev.sh
+RUN chmod +x /entrypoint.dev.sh
+
+COPY . .
+
+EXPOSE 3001
+
+ENV PORT=3001
+ENV HOSTNAME=0.0.0.0
+ENV NODE_ENV=development
+
+ENTRYPOINT ["/entrypoint.dev.sh"]
+CMD ["npm", "run", "dev", "--", "-p", "3001", "-H", "0.0.0.0"]

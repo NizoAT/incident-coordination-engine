@@ -11,7 +11,7 @@ COMPOSE ?= docker compose
 .PHONY: help setup dev test build lint check db-up db-down db-reset clean-env wait-db migrate seed deps env check-deps
 
 help: ## Affiche les cibles disponibles
-	@echo "Incident Coordination Engine — Make (M9)"
+	@echo "Incident Coordination Engine — Make (M10)"
 	@echo ""
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 	@echo ""
@@ -76,3 +76,17 @@ check-docker:
 
 check-make:
 	@command -v make >/dev/null 2>&1 || { echo "✗ Make requis"; exit 1; }
+
+up: check-docker env ## docker compose up -d --build (web + Postgres)
+	$(COMPOSE) up --build -d
+	@echo ""
+	@echo "✓ Stack Compose démarrée — http://localhost:3001"
+
+down: check-docker ## Arrête web + Postgres
+	$(COMPOSE) down
+
+logs: check-docker ## Suit les logs web + postgres
+	$(COMPOSE) logs -f web postgres
+
+compose: check-docker env ## docker compose up --build (premier plan)
+	$(COMPOSE) up --build
